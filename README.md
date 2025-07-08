@@ -36,20 +36,17 @@ yarn start
  yarn upgrade [package]	= Upgrades a specific package. <br>
 
 🚀 Running the App
-|Command	                   |Description
- yarn start	                  Starts the development server.
- yarn build	                  Builds the app for production.
- yarn serve	                  Serves the production build (if using a tool like serve).
+ yarn start = Starts the development server. <br>
+ yarn build	= Builds the app for production. <br>
+ yarn serve	= Serves the production build (if using a tool like serve). <br>
 
 🧪 Testing
-|Command	                   |Description
- yarn test	                  Runs the test suite.
- yarn test --watch	          Runs tests in watch mode.
+ yarn test = Runs the test suite. <br>
+ yarn test --watch	= Runs tests in watch mode. <br>
 
 🧹 Linting & Formatting
-|Command	                   |Description
- yarn lint	                  Runs the linter (e.g., ESLint).
- yarn format	                Formats code using Prettier (if configured).
+ yarn lint = Runs the linter (e.g., ESLint). <br>
+ yarn format = Formats code using Prettier (if configured). <br>
 
 
 🧭 Features
