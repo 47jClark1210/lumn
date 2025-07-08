@@ -25,6 +25,30 @@ Running the App
 yarn start
 (This will start the development server at http://localhost:3000.)
 
+🧶 Yarn Commands
+
+📦 Dependency Management <br>
+ yarn install = Installs all dependencies listed in package.json. <br>
+ yarn add [package] = Adds a new dependency to the project. <br>
+ yarn add [package] --dev = Adds a development-only dependency. <br>
+ yarn remove [package] = Removes a dependency. <br>
+ yarn upgrade = Upgrades all dependencies to their latest versions based on the version ranges in package.json. <br>
+ yarn upgrade [package]	= Upgrades a specific package. <br>
+
+🚀 Running the App
+ yarn start = Starts the development server. <br>
+ yarn build	= Builds the app for production. <br>
+ yarn serve	= Serves the production build (if using a tool like serve). <br>
+
+🧪 Testing
+ yarn test = Runs the test suite. <br>
+ yarn test --watch	= Runs tests in watch mode. <br>
+
+🧹 Linting & Formatting
+ yarn lint = Runs the linter (e.g., ESLint). <br>
+ yarn format = Formats code using Prettier (if configured). <br>
+
+
 🧭 Features
 ✅ Create and manage Objectives and Key Results
 📊 Visual progress tracking
