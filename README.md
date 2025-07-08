@@ -27,14 +27,13 @@ yarn start
 
 🧶 Yarn Commands
 
-  📦 Dependency Management
-|Command	                   |Description
- yarn install	                Installs all dependencies listed in package.json.
- yarn add [package]	          Adds a new dependency to the project.
- yarn add [package] --dev	    Adds a development-only dependency.
- yarn remove [package]	      Removes a dependency.
- yarn upgrade	                Upgrades all dependencies to their latest versions based on the version ranges in                                           package.json.
- yarn upgrade [package]	      Upgrades a specific package.
+📦 Dependency Management <br>
+ yarn install = Installs all dependencies listed in package.json. <br>
+ yarn add [package] = Adds a new dependency to the project. <br>
+ yarn add [package] --dev = Adds a development-only dependency. <br>
+ yarn remove [package] = Removes a dependency. <br>
+ yarn upgrade = Upgrades all dependencies to their latest versions based on the version ranges in package.json. <br>
+ yarn upgrade [package]	= Upgrades a specific package. <br>
 
 🚀 Running the App
 |Command	                   |Description
