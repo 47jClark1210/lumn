@@ -1,4 +1,5 @@
-import logo from './logo.svg';
+import 'antd/dist/antd.css';
+import logo from './Solar Eclipse Favicon.ico';
 import './App.css';
 
 function App() {
