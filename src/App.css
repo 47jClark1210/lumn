@@ -1,3 +1,56 @@
+/* Animate the custom stock trigger sliding out from behind the Sider */
+.custom-stock-trigger.slide-behind {
+  left: -48px !important;
+  opacity: 0;
+  pointer-events: none;
+}
+.custom-stock-trigger.slide-out {
+  left: 0 !important;
+  opacity: 1;
+  pointer-events: auto;
+}
+/* Animate the stock Ant Design Sider trigger sliding in/out from behind the Sider */
+.ant-layout-sider-trigger {
+  transition: left 0.8s cubic-bezier(0.4,0,0.2,1), opacity 0.3s;
+  position: relative;
+  left: 0;
+  z-index: 0;
+}
+.ant-layout-sider-trigger.slide-out {
+  left: -48px;
+  opacity: 0;
+}
+.ant-layout-sider-trigger.slide-in {
+  left: 0;
+  opacity: 1;
+}
+/* Sidebar logo row styling for proper alignment and overflow handling */
+.logos {
+  flex-wrap: nowrap;
+  max-width: 100%;
+  margin: 0 auto;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.logos img {
+  max-width: 28px;
+  height: auto;
+}
+.logos span {
+  font-size: 10px;
+  word-break: keep-all;
+}
+.logos img {
+  max-width: 40px;
+  height: auto;
+}
+.logos span {
+  word-break: keep-all;
+}
+ 
 .App {
   text-align: center;
 }
