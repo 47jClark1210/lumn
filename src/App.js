@@ -8,6 +8,7 @@ import {
 } from 'react-router-dom';
 
 const { Header, Content, Footer, Sider } = Layout;
+const { SubMenu } = Menu;
 
 function Analytics() {
   return <h2>Dashboard</h2>;
@@ -21,7 +22,6 @@ function Collaboration() {
 function Reporting() {
   return <h2>Reporting</h2>;
 }
-
 function App() {
   return (
     <Router>
@@ -43,6 +43,14 @@ function App() {
             <Menu.Item key="reporting">
               <Link to="/reporting">Reporting</Link>
             </Menu.Item>
+            <SubMenu key="settings" title="Settings">
+              <Menu.Item key="profile">
+                <Link to="/profile">Profile</Link>
+              </Menu.Item>
+              <Menu.Item key="preferences">
+                <Link to="/preferences">Preferences</Link>
+              </Menu.Item>
+            </SubMenu>
           </Menu>
         </Sider>
         <Layout>
