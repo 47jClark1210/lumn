@@ -1,10 +1,17 @@
-const { Pool} = require('pg');
+require('dotenv').config(); // Load environment variables from a .env file
+const { Pool } = require('pg');
+
 const pool = new Pool({
-    user: 'postgres',
-    password: '*47aUaRaX1210*',
-    host: 'localhost',
-    port: 5432, // default Postgres port
-    database: 'lumn_1898_db'
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT || 5432, // Default to Postgres port
+    database: process.env.DB_NAME,
+});
+
+pool.on('error', (err) => {
+    console.error('Unexpected error on idle database client', err);
+    process.exit(-1);
 });
 
 module.exports = {

@@ -25,6 +25,17 @@ app.use('/api/keyresults', keyResultsRoutes);
 app.use('/api/teams', teamsRoutes);
 app.use('/api/comments', commentsRoutes);
 
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack); // Log the error stack for debugging
+  const statusCode = err.status || 500;
+  res.status(statusCode).json({
+    error: {
+      message: err.message || 'Internal Server Error',
+    },
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
