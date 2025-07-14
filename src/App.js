@@ -95,6 +95,9 @@ function App() {
             <Menu.Item key="reporting">
               <Link to="/reporting">Reporting</Link>
             </Menu.Item>
+            <Menu.Item key="favorites">
+                <Link to="/favorites">Favorites</Link>
+              </Menu.Item>
             <SubMenu key="settings" title="Settings">
               <Menu.Item key="profile">
                 <Link to="/profile">Profile</Link>
