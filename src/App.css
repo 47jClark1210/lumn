@@ -1,32 +1,46 @@
 /* Animate the custom stock trigger sliding out from behind the Sider */
+.custom-stock-trigger {
+  position: absolute;
+  top: 80px;
+  right: 0; /* Ensure it aligns with the Sider */
+  z-index: 1100;
+  background: #001529;
+  color: #fff;
+  font-size: 22px;
+  padding: 8px 10px;
+  border-radius: 0 4px 4px 0;
+  box-shadow: 1px 0 4px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s;
+}
 .custom-stock-trigger.slide-behind {
-  left: -48px !important;
+  right: -48px; /* Move behind the Sider */
   opacity: 0;
   pointer-events: none;
 }
 .custom-stock-trigger.slide-out {
-  left: 0 !important;
+  right: 0; /* Flush with the Sider */
   opacity: 1;
   pointer-events: auto;
 }
- 
+
 /* Animate the stock Ant Design Sider trigger sliding in/out from behind the Sider */
 .ant-layout-sider-trigger {
-  transition: left 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
-  position: relative;
-  left: 0;
-  z-index: 0;
-  will-change: left, opacity; /* Optimize animation performance */
+  transition: right 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+  position: absolute;
+  right: 0;
+  z-index: 1100;
+  will-change: right, opacity; /* Optimize animation performance */
 }
 .ant-layout-sider-trigger.slide-out {
-  left: -48px;
+  right: -48px; /* Move out of view */
   opacity: 0;
 }
 .ant-layout-sider-trigger.slide-in {
-  left: 0;
+  right: 0; /* Align with the Sider */
   opacity: 1;
 }
- 
+
 /* Sidebar logo row styling for proper alignment and overflow handling */
 .logos {
   flex-wrap: nowrap;
@@ -46,7 +60,7 @@
   font-size: 10px;
   word-break: keep-all;
 }
- 
+
 /* General App styling */
 .App {
   text-align: center;
@@ -78,7 +92,7 @@
 .App-link {
   color: #61dafb;
 }
- 
+
 /* Keyframes for App logo spin animation */
 @keyframes App-logo-spin {
   from {

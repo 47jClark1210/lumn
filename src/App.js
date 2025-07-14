@@ -7,7 +7,8 @@ import {
   Route,
   Link
 } from 'react-router-dom';
- 
+import { PieChartOutlined, ExperimentOutlined } from '@ant-design/icons';
+
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
  
@@ -28,7 +29,7 @@ function App() {
   const [collapsed, setCollapsed] = useState(false);
   // Animate the stock trigger
   // No longer need to add/remove classes, will animate via style
- 
+
   return (
     <Router>
       <Layout style={{ minHeight: '100vh' }}>
@@ -65,7 +66,7 @@ function App() {
             style={{
               position: 'absolute',
               top: 80,
-              right: collapsed ? -48 : -200, // -200px is the Sider width, -48px is trigger width
+              right: collapsed ? -40 : -200, // -200px is the Sider width, -48px is trigger width
               zIndex: 1100,
               background: '#001529',
               color: '#fff',
@@ -83,10 +84,10 @@ function App() {
             &#9776;
           </span>
           <Menu theme="dark" mode="inline" defaultSelectedKeys={['dashboard']}>
-            <Menu.Item key="analytics">
-              <Link to="/">Analytics</Link>
-            </Menu.Item>
-            <Menu.Item key="learning">
+            <Menu.Item key="analytics" icon={<PieChartOutlined />}>
+              <Link to="/">Analytics </Link>
+              </Menu.Item>
+            <Menu.Item key="learning" icon={<ExperimentOutlined />}>
               <Link to="/learning">Learning</Link>
             </Menu.Item>
             <Menu.Item key="collaboration">
@@ -110,10 +111,10 @@ function App() {
         </Sider>
         <Layout>
           <Header style={{ background: '#fff', padding: 0, textAlign: 'left', fontWeight: 'bolder', borderBottom: '1px solid #e0e0e0', marginLeft: '8px', height: 32, lineHeight: '32px' }}>
-            Search
+            Analytics
           </Header>
           <Header style={{ background: '#fff', padding: 0, textAlign: 'left', fontWeight: 'bolder', borderBottom: '1px solid #e0e0e0', marginLeft: '8px', marginTop: 0, height: 32, lineHeight: '32px' }}>
-            Tabs
+            Analytics
           </Header>
           <Content style={{ margin: '24px 16px 0' }}>
             <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
