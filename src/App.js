@@ -64,7 +64,7 @@ function App() {
             style={{
               position: 'absolute',
               top: 80,
-              right: collapsed ? -48 : -200, // -200px is the Sider width, -48px is trigger width
+              right: collapsed ? -40 : -200, // -200px is the Sider width, -48px is trigger width
               zIndex: 1100,
               background: '#001529',
               color: '#fff',
@@ -84,6 +84,7 @@ function App() {
           <Menu theme="dark" mode="inline" defaultSelectedKeys={['dashboard']}>
             <Menu.Item key="analytics">
               <Link to="/">Analytics</Link>
+              <PieChartOutlined />
             </Menu.Item>
             <Menu.Item key="learning">
               <Link to="/learning">Learning</Link>
