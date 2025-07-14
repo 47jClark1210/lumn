@@ -7,6 +7,7 @@ import {
   Route,
   Link
 } from 'react-router-dom';
+import { PieChartOutlined, ExperimentOutlined } from '@ant-design/icons';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -82,11 +83,10 @@ function App() {
             &#9776;
           </span>
           <Menu theme="dark" mode="inline" defaultSelectedKeys={['dashboard']}>
-            <Menu.Item key="analytics">
-              <Link to="/">Analytics</Link>
-              <PieChartOutlined />
-            </Menu.Item>
-            <Menu.Item key="learning">
+            <Menu.Item key="analytics" icon={<PieChartOutlined />}>
+              <Link to="/">Analytics </Link>
+              </Menu.Item>
+            <Menu.Item key="learning" icon={<ExperimentOutlined />}>
               <Link to="/learning">Learning</Link>
             </Menu.Item>
             <Menu.Item key="collaboration">
