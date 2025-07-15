@@ -7,10 +7,11 @@ import {
   Route,
   Link
 } from 'react-router-dom';
-import { PieChartOutlined, ExperimentOutlined } from '@ant-design/icons';
+import { PieChartOutlined, ExperimentOutlined, StarOutlined, TeamOutlined } from '@ant-design/icons';
 
 const { Header, Content, Footer, Sider } = Layout;
-
+const { SubMenu } = Menu;
+ 
 function Analytics() {
   return <h2>Dashboard</h2>;
 }
@@ -23,7 +24,7 @@ function Collaboration() {
 function Reporting() {
   return <h2>Reporting</h2>;
 }
-
+ 
 function App() {
   const [collapsed, setCollapsed] = useState(false);
   // Animate the stock trigger
@@ -93,20 +94,31 @@ function App() {
             <Menu.Item key="learning" icon={<ExperimentOutlined />}>
               <Link to="/learning">Learning</Link>
             </Menu.Item>
-            <Menu.Item key="collaboration">
+            <Menu.Item key="collaboration" icon={<TeamOutlined />}>
               <Link to="/collaboration">Collaboration</Link>
             </Menu.Item>
             <Menu.Item key="reporting">
               <Link to="/reporting">Reporting</Link>
             </Menu.Item>
+            <Menu.Item key="favorites" icon={<StarOutlined />}>
+                <Link to="/favorites">Favorites</Link>
+              </Menu.Item>
+            <SubMenu key="settings" title="Settings">
+              <Menu.Item key="profile">
+                <Link to="/profile">Profile</Link>
+              </Menu.Item>
+              <Menu.Item key="preferences">
+                <Link to="/preferences">Preferences</Link>
+              </Menu.Item>
+            </SubMenu>
           </Menu>
         </Sider>
         <Layout>
           <Header style={{ background: '#fff', padding: 0, textAlign: 'left', fontWeight: 'bolder', borderBottom: '1px solid #e0e0e0', marginLeft: '8px', height: 32, lineHeight: '32px' }}>
-            Analytics
+            Search
           </Header>
           <Header style={{ background: '#fff', padding: 0, textAlign: 'left', fontWeight: 'bolder', borderBottom: '1px solid #e0e0e0', marginLeft: '8px', marginTop: 0, height: 32, lineHeight: '32px' }}>
-            Analytics
+            Tabs
           </Header>
           <Content style={{ margin: '24px 16px 0' }}>
             <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
@@ -126,5 +138,5 @@ function App() {
     </Router>
   );
 }
-
+ 
 export default App;
