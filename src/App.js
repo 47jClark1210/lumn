@@ -7,7 +7,7 @@ import {
   Route,
   Link
 } from 'react-router-dom';
-import { PieChartOutlined, ExperimentOutlined, StarOutlined, TeamOutlined, SolutionOutlined, SettingOutlined, UserOutlined, HighlightOutlined } from '@ant-design/icons';
+import { PieChartOutlined, ExperimentOutlined, StarOutlined, TeamOutlined, SolutionOutlined, SettingOutlined, UserOutlined, HighlightOutlined, EditOutlined, UpOutlined, DownOutlined, SaveOutlined, RocketOutlined, ToolOutlined } from '@ant-design/icons';
 import SubMenu from 'antd/es/menu/SubMenu';
 
 const { Header, Content, Footer, Sider } = Layout;
