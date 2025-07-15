@@ -42,11 +42,15 @@ function App() {
           style={{ position: 'relative' }}
         >
           <div className="logos" style={{ color: 'white', textAlign: 'center', fontWeight: 'bold', padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-            <img src="/Solar Eclipse Logo.png" alt="Solar Eclipse Logo" style={{ height: 28, marginRight: 4 }} />
-            <span style={{ fontSize: 10 }}>lumn</span>
-            <span style={{ margin: '0 2px', fontSize: 16 }}>|</span>
-            <img src="/1898Logo.png" alt="1898 Logo" style={{ height: 28, marginLeft: 1, marginRight: 4 }} />
-            <span style={{ fontSize: 10 }}>1898 & Co.</span>
+            <div className="logo-group-solar">
+              <img src="/Solar Eclipse Logo.png" alt="Solar Eclipse Logo" style={{ height: 28, marginRight: 4 }} />
+              <span style={{ fontSize: 10 }}>lumn</span>
+            </div>
+            <span className="vertical-bar">|</span>
+            <div className="logo-group-1898">
+              <img src="/1898Logo.png" alt="1898 Logo" style={{ height: 28, marginLeft: 1, marginRight: 4 }} />
+              <span style={{ fontSize: 10 }}>1898 & Co.</span>
+            </div>
           </div>
           {/* Custom close trigger, only visible when Sider is open */}
           {!collapsed && (
