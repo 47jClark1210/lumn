@@ -1,13 +1,14 @@
 import './App.css';
 import { Layout, Menu } from 'antd';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Link
 } from 'react-router-dom';
-import { PieChartOutlined, ExperimentOutlined } from '@ant-design/icons';
+import { PieChartOutlined, ExperimentOutlined, StarOutlined, TeamOutlined, SolutionOutlined, SettingOutlined, UserOutlined, HighlightOutlined } from '@ant-design/icons';
+import SubMenu from 'antd/es/menu/SubMenu';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -22,6 +23,12 @@ function Collaboration() {
 }
 function Reporting() {
   return <h2>Reporting</h2>;
+}
+function Favorites() {
+  return <h2>Favorites</h2>;
+}
+function Settings() {
+  return <h2>Settings</h2>;
 }
 
 function App() {
@@ -84,25 +91,36 @@ function App() {
           </span>
           <Menu theme="dark" mode="inline" defaultSelectedKeys={['dashboard']}>
             <Menu.Item key="analytics" icon={<PieChartOutlined />}>
-              <Link to="/">Analytics </Link>
+              <Link to="/">Analytics</Link>
               </Menu.Item>
             <Menu.Item key="learning" icon={<ExperimentOutlined />}>
               <Link to="/learning">Learning</Link>
             </Menu.Item>
-            <Menu.Item key="collaboration">
+            <Menu.Item key="collaboration" icon={<TeamOutlined />}>
               <Link to="/collaboration">Collaboration</Link>
             </Menu.Item>
-            <Menu.Item key="reporting">
+            <Menu.Item key="reporting" icon={<SolutionOutlined />}>
               <Link to="/reporting">Reporting</Link>
             </Menu.Item>
+            <Menu.Item key="favorites" icon={<StarOutlined />}>
+              <Link to="/favorites">Favorites</Link>
+            </Menu.Item>
+            <SubMenu key="settings" icon={<SettingOutlined />} title="Settings">
+              <Menu.Item key="profile" icon={<UserOutlined />}>
+                <Link to="/settings">Profile</Link>
+              </Menu.Item>
+              <Menu.Item key="preferences" icon={<HighlightOutlined />}>
+                <Link to="/settings">Preferences</Link>
+              </Menu.Item>
+            </SubMenu>
           </Menu>
         </Sider>
         <Layout>
           <Header style={{ background: '#fff', padding: 0, textAlign: 'left', fontWeight: 'bolder', borderBottom: '1px solid #e0e0e0', marginLeft: '8px', height: 32, lineHeight: '32px' }}>
-            Analytics
+            Search
           </Header>
           <Header style={{ background: '#fff', padding: 0, textAlign: 'left', fontWeight: 'bolder', borderBottom: '1px solid #e0e0e0', marginLeft: '8px', marginTop: 0, height: 32, lineHeight: '32px' }}>
-            Analytics
+            Tabs
           </Header>
           <Content style={{ margin: '24px 16px 0' }}>
             <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
@@ -111,6 +129,8 @@ function App() {
                 <Route path="/reporting" element={<Reporting />} />
                 <Route path="/collaboration" element={<Collaboration />} />
                 <Route path="/learning" element={<Learning />} />
+                <Route path="/favorites" element={<Favorites />} />
+                <Route path="/settings" element={<Settings />} />
               </Routes>
             </div>
           </Content>
