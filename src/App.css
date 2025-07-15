@@ -1,3 +1,7 @@
+body, #root, .ant-layout, .ant-layout-content {
+  overflow: hidden !important;
+}
+
 /* Animate the custom stock trigger sliding out from behind the Sider */
 .custom-stock-trigger {
   position: absolute;
@@ -50,15 +54,39 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 16px;
 }
+
+.logos .logo-group-solar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-right: 8px; /* Add some space between the logos */
+}
+
+.logos .logo-group-1898 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-left: 8px; /* Add some space between the logos */
+}
+
 .logos img {
-  max-width: 40px;
-  height: auto;
+  width: 35px;
+  height: 55px; /* Ensure logos are not too large */
+  object-fit: fill;
+  transform: scale(1.5); /* Scale the logos */
+  margin-bottom: 10px;
 }
-.logos span {
-  font-size: 10px;
-  word-break: keep-all;
+
+.logos .vertical-bar {
+  font-size: 24px;
+  font-weight: 50;
+  line-height: 1; /* Ensure the vertical bar is centered */
+  flex-shrink: 0; /* Prevent the bar from shrinking */
+  margin: 0 10px; /* Add some space around the vertical bar */
 }
 
 /* General App styling */
@@ -102,3 +130,98 @@
     transform: rotate(360deg);
   }
 }
+
+/* This class is applied when the card is in its collapsed state */
+.card-collapsed {
+  width: 100vw;
+  min-height: 70px;
+  height: 70px;
+  transition: height 0.3s;
+  overflow: hidden;
+  border-radius: 12px;
+  border: #707377 1.5px solid;
+}
+
+/* Pulse animation for the card border */
+@keyframes pulse-border-collapsed {
+  0% {
+    box-shadow: 0 0 0 0 #61dafb;
+    border-color: #707377;
+  }
+  50% {
+    box-shadow: 0 0 4px 2px #61dafb;
+    border-color: #61dafb;
+  }
+  100% {
+    box-shadow: 0 0 0 0 #61dafb;
+    border-color: #707377;
+  }
+}
+
+.card-collapsed:hover {
+  animation: pulse-border-collapsed 1.0s infinite;
+  border-color: #61dafb;
+}
+
+/* Styles for the expanded card */
+.card-expanded {
+  width: 100vw;
+  transition: height 0.3s;
+  overflow: hidden;
+  border-radius: 12px;
+  border: #707377 1.5px solid;
+  position: relative;
+  transform: ease-in-out;
+  box-shadow: 3 3 10px rgba(0, 0, 0, 0.1);
+}
+
+.card-expanded:hover::after {
+  opacity: 1;
+  animation: pulse 0.8s;
+}
+
+@keyframes pulse-border-expanded {
+ 0% {
+    box-shadow: 0 0 0 0 #61dafb;
+    border-color: #707377;
+  }
+  50% {
+    box-shadow: 0 0 4px 2px #61dafb;
+    border-color: #61dafb;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+    border-color: #707377;
+  }
+}
+
+.card-expanded:hover {
+  animation: pulse-border-expanded 1.0s infinite;
+  border-color: #61dafb;
+}
+
+/* Key Result enter animation */
+.key-result-slide {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-20px);
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s, transform 0.2s;
+}
+
+.key-result-slide.visible {
+  max-height: 120px; /* adjust as needed */
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.objective-list {
+  max-height: 80vh;
+  overflow-y: auto;
+  padding-right: 8px;
+  padding-left: 8px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+
