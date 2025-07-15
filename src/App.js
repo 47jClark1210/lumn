@@ -1,19 +1,238 @@
 import './App.css';
-import { Layout, Menu } from 'antd';
-import { useState, useEffect } from 'react';
+import { Layout, Menu, Card, Input, Button, Tooltip, Progress, Flex, Avatar } from 'antd';
+import React, { useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Link
 } from 'react-router-dom';
-import { PieChartOutlined, ExperimentOutlined } from '@ant-design/icons';
+import { PieChartOutlined, ExperimentOutlined, DownOutlined, UpOutlined, EditOutlined, SaveOutlined, ToolOutlined, RocketOutlined, TeamOutlined } from '@ant-design/icons';
 
 const { Header, Content, Footer, Sider } = Layout;
 
-function Analytics() {
-  return <h2>Dashboard</h2>;
+// Sample data arrays
+const titles = [
+  "Improve User Engagement", "Increase Revenue", "Enhance Security", "Boost Performance", "Expand Market Share", "Reduce Churn", "Launch New Feature"
+];
+const owners = [
+  { name: "Jane Doe", avatar: "https://randomuser.me/api/portraits/women/44.jpg" },
+  { name: "John Smith", avatar: "https://randomuser.me/api/portraits/men/32.jpg" },
+  { name: "Alice Lee", avatar: "https://randomuser.me/api/portraits/women/68.jpg" },
+  { name: "Bob Brown", avatar: "https://randomuser.me/api/portraits/men/15.jpg" }
+];
+const teams = [
+  { name: "Product Development", icon: <RocketOutlined /> },
+  { name: "Engineering", icon: <ToolOutlined /> },
+  { name: "Marketing", icon: <TeamOutlined /> }
+];
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+function generateKeyResults() {
+  const num = getRandomInt(2, 4);
+  return Array.from({ length: num }).map((_, idx) => ({
+    text: `Key Result ${idx + 1}`,
+    percent: getRandomInt(40, 100),
+    success: getRandomInt(20, 80)
+  }));
+}
+
+function generateObjective(idx) {
+  const owner = owners[getRandomInt(0, owners.length - 1)];
+  const team = teams[getRandomInt(0, teams.length - 1)];
+  return {
+    title: titles[idx % titles.length],
+    owner,
+    team,
+    dateCreated: `2025-07-${getRandomInt(1, 15).toString().padStart(2, '0')}`,
+    objectivePercent: getRandomInt(50, 100),
+    objectiveSuccess: getRandomInt(20, 80),
+    keyResults: generateKeyResults()
+  };
+}
+
+function Analytics() {
+  const [objectives, setObjectives] = useState(
+    Array.from({ length: 7 }).map((_, idx) => generateObjective(idx))
+  );
+  const [expandedIndex, setExpandedIndex] = useState(null);
+  const [editObjIndex, setEditObjIndex] = useState(null); // For editing objective title
+  const [editKRIndex, setEditKRIndex] = useState({ obj: null, kr: null }); // For editing key result
+  const [editValue, setEditValue] = useState('');
+  const [showKeyResults, setShowKeyResults] = useState(false);
+
+  useEffect(() => {
+    if (expandedIndex !== null) {
+      setTimeout(() => setShowKeyResults(true), 10);
+    } else {
+      setShowKeyResults(false);
+    }
+  }, [expandedIndex]);
+
+  // Edit Objective Title
+  const handleEditObj = (idx) => {
+    setEditObjIndex(idx);
+    setEditValue(objectives[idx].title);
+  };
+  const handleSaveObj = (idx) => {
+    const updated = [...objectives];
+    updated[idx].title = editValue;
+    setObjectives(updated);
+    setEditObjIndex(null);
+    setEditValue('');
+  };
+
+  // Edit Key Result
+  const handleEditKR = (objIdx, krIdx) => {
+    setEditKRIndex({ obj: objIdx, kr: krIdx });
+    setEditValue(objectives[objIdx].keyResults[krIdx].text);
+  };
+  const handleSaveKR = (objIdx, krIdx) => {
+    const updated = [...objectives];
+    updated[objIdx].keyResults[krIdx].text = editValue;
+    setObjectives(updated);
+    setEditKRIndex({ obj: null, kr: null });
+    setEditValue('');
+  };
+
+  return (
+    <div>
+      <h2>Objectives & Key Results</h2>
+      <div className="objective-list">
+        {objectives.map((obj, cardIdx) => (
+          <Card
+            key={cardIdx}
+            className={expandedIndex === cardIdx ? 'card-expanded' : 'card-collapsed'}
+            style={{ width: '100%', marginBottom: 10, minHeight: expandedIndex === cardIdx ? 140 : 70, transition: 'height 0.3s' }}
+            bodyStyle={{ paddingTop: 0, paddingBottom: 0 }}
+          >
+            <Flex align="center" style={{ height: '70px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <div style={{ fontSize: 12, color: '#888', fontWeight: 'bold' }}>Title</div>
+                <div style={{ fontSize: 11, fontWeight: '700', marginTop: 3, display: 'flex', alignItems: 'center' }}>
+                  {editObjIndex === cardIdx ? (
+                    <>
+                      <Input
+                        value={editValue}
+                        onChange={e => setEditValue(e.target.value)}
+                        onPressEnter={() => handleSaveObj(cardIdx)}
+                        size="small"
+                        style={{ width: '80%' }}
+                        autoFocus
+                      />
+                      <Button
+                        icon={<SaveOutlined />}
+                        type="link"
+                        size="small"
+                        onClick={() => handleSaveObj(cardIdx)}
+                        style={{ marginLeft: 8 }}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <span style={{ flex: 1 }}>{obj.title}</span>
+                      <Button
+                        icon={<EditOutlined />}
+                        type="link"
+                        size="small"
+                        onClick={() => handleEditObj(cardIdx)}
+                        style={{ marginLeft: 8 }}
+                      />
+                    </>
+                  )}
+                </div>
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 12px', borderLeft: '1px solid #e0e0e0' }}>
+                <div style={{ fontSize: 12, color: '#888', fontWeight: 'bold' }}>Owner</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Avatar src={obj.owner.avatar} size={24} />
+                  <span>{obj.owner.name}</span>
+                </div>
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 12px', borderLeft: '1px solid #e0e0e0' }}>
+                <div style={{ fontSize: 12, color: '#888', fontWeight: 'bold' }}>Team</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {obj.team.icon}
+                  <span>{obj.team.name}</span>
+                </div>
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 12px', borderLeft: '1px solid #e0e0e0' }}>
+                <div style={{ fontSize: 12, color: '#888', fontWeight: 'bold' }}>Date Created</div>
+                <div>{obj.dateCreated}</div>
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '0 12px', borderLeft: '1px solid #e0e0e0' }}>
+                <Tooltip title={`${obj.objectiveSuccess}% done / ${obj.objectivePercent - obj.objectiveSuccess}% in progress`}>
+                  <Progress percent={obj.objectivePercent} success={{ percent: obj.objectiveSuccess }} type="circle" width={48} />
+                </Tooltip>
+              </div>
+              <div style={{ marginLeft: 12, cursor: 'pointer', height: '100%', display: 'flex', alignItems: 'center' }}
+                onClick={() => setExpandedIndex(expandedIndex === cardIdx ? null : cardIdx)}>
+                {expandedIndex === cardIdx ? <UpOutlined /> : <DownOutlined />}
+              </div>
+            </Flex>
+            {expandedIndex === cardIdx && (
+              <div style={{ borderBottom: '1px solid #e0e0e0', width: '100%' }} />
+            )}
+            {expandedIndex === cardIdx && obj.keyResults.map((kr, idx) => (
+              <div
+                key={idx}
+                className={`key-result-slide${showKeyResults ? ' visible' : ''}`}
+                style={{ transitionDelay: `${idx * 80}ms` }}
+              >
+                <Flex align="center" style={{ padding: '12px 0' }}>
+                  {editKRIndex.obj === cardIdx && editKRIndex.kr === idx ? (
+                    <>
+                      <Input
+                        value={editValue}
+                        onChange={e => setEditValue(e.target.value)}
+                        onPressEnter={() => handleSaveKR(cardIdx, idx)}
+                        size="small"
+                        style={{ flex: 1, marginRight: 8 }}
+                        autoFocus
+                      />
+                      <Button
+                        icon={<SaveOutlined />}
+                        type="link"
+                        size="small"
+                        onClick={() => handleSaveKR(cardIdx, idx)}
+                        style={{ marginRight: 12 }}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <span style={{ flex: 1, fontWeight: '400', fontSize: 15, marginRight: 8 }}>
+                        {kr.text}
+                      </span>
+                      <Button
+                        icon={<EditOutlined />}
+                        type="link"
+                        size="small"
+                        onClick={() => handleEditKR(cardIdx, idx)}
+                        style={{ marginRight: 12 }}
+                      />
+                    </>
+                  )}
+                  <Tooltip title={`${kr.success}% done / ${kr.percent - kr.success}% in progress`}>
+                    <div style={{ flex: 2 }}>
+                      <Progress percent={kr.percent} success={{ percent: kr.success }} />
+                    </div>
+                  </Tooltip>
+                </Flex>
+                {idx < obj.keyResults.length - 1 && (
+                  <div style={{ borderBottom: '1px solid #e0e0e0', width: '100%' }} />
+                )}
+              </div>
+            ))}
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Learning() {
   return <h2>Learning</h2>;
 }
@@ -26,8 +245,6 @@ function Reporting() {
 
 function App() {
   const [collapsed, setCollapsed] = useState(false);
-  // Animate the stock trigger
-  // No longer need to add/remove classes, will animate via style
 
   return (
     <Router>
@@ -69,7 +286,7 @@ function App() {
             style={{
               position: 'absolute',
               top: 80,
-              right: collapsed ? -40 : -200, // -200px is the Sider width, -48px is trigger width
+              right: collapsed ? -40 : -200,
               zIndex: 1100,
               background: '#001529',
               color: '#fff',
@@ -89,7 +306,7 @@ function App() {
           <Menu theme="dark" mode="inline" defaultSelectedKeys={['dashboard']}>
             <Menu.Item key="analytics" icon={<PieChartOutlined />}>
               <Link to="/">Analytics </Link>
-              </Menu.Item>
+            </Menu.Item>
             <Menu.Item key="learning" icon={<ExperimentOutlined />}>
               <Link to="/learning">Learning</Link>
             </Menu.Item>
@@ -108,8 +325,8 @@ function App() {
           <Header style={{ background: '#fff', padding: 0, textAlign: 'left', fontWeight: 'bolder', borderBottom: '1px solid #e0e0e0', marginLeft: '8px', marginTop: 0, height: 32, lineHeight: '32px' }}>
             Analytics
           </Header>
-          <Content style={{ margin: '24px 16px 0' }}>
-            <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
+          <Content style={{ margin: '24px 16px 0', overflow: 'visible' }}>
+            <div style={{ padding: 24, background: '#fff', minHeight: 360, overflow: 'visible' }}>
               <Routes>
                 <Route path="/" element={<Analytics />} />
                 <Route path="/reporting" element={<Reporting />} />
