@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ant-design/icons": "5.x",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
@@ -13,7 +14,9 @@
     "eslint-config-react-app": "^7.0.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.3",
     "react-scripts": "^5.0.1",
+    "react-transition-group": "^4.4.5",
     "web-vitals": "^5.0.3"
   },
   "scripts": {
@@ -39,5 +42,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "license": "MIT"
 }
+ 
+ 
