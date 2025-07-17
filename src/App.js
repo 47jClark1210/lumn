@@ -1,5 +1,9 @@
 import './App.css';
+<<<<<<< HEAD
 import { Layout, Menu, Card, Input, Button, Tooltip, Progress, Flex, Avatar, Descriptions, List, Tag, Divider } from 'antd';
+=======
+import { Layout, Menu, Card, Input, Button, Tooltip, Progress, Flex, Avatar, Modal, Dropdown } from 'antd';
+>>>>>>> 54ac6400eee44049e8de3438bc8aab9f4ce91e6c
 import React, { useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
@@ -7,8 +11,7 @@ import {
   Route,
   Link
 } from 'react-router-dom';
-import { PieChartOutlined, ExperimentOutlined, StarOutlined, TeamOutlined, SolutionOutlined, SettingOutlined, UserOutlined, HighlightOutlined, EditOutlined, UpOutlined, DownOutlined, SaveOutlined, RocketOutlined, ToolOutlined } from '@ant-design/icons';
-import SubMenu from 'antd/es/menu/SubMenu';
+import { PieChartOutlined, ExperimentOutlined, StarOutlined, TeamOutlined, SolutionOutlined, SettingOutlined, UserOutlined, EditOutlined, UpOutlined, DownOutlined, SaveOutlined, RocketOutlined, ToolOutlined, PoweroffOutlined } from '@ant-design/icons';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -286,14 +289,315 @@ function Collaboration() {
   );
 }
 function Reporting() {
-  return <h2>Reporting</h2>;
+  // Use the same structure as Analytics
+  // Always show random objectives, no add functionality
+  const [objectives, setObjectives] = useState(() => Array.from({ length: 7 }).map((_, idx) => generateObjective(idx)));
+  const [expandedIndex, setExpandedIndex] = useState(null);
+  const [editObjIndex, setEditObjIndex] = useState(null);
+  const [editKRIndex, setEditKRIndex] = useState({ obj: null, kr: null });
+  const [editValue, setEditValue] = useState('');
+  const [showKeyResults, setShowKeyResults] = useState(false);
+  const [newKRIdx, setNewKRIdx] = useState(null);
+  const [newKRText, setNewKRText] = useState('');
+  const [summaryIdx, setSummaryIdx] = useState(null);
+  const [summaryDraft, setSummaryDraft] = useState('');
+  const [removingIdx, setRemovingIdx] = useState(null);
+  const [feedbackIdx, setFeedbackIdx] = useState({ obj: null, kr: null });
+  const [feedbackDraft, setFeedbackDraft] = useState('');
+
+  useEffect(() => {
+    if (expandedIndex !== null) {
+      setTimeout(() => setShowKeyResults(true), 10);
+    } else {
+      setShowKeyResults(false);
+    }
+  }, [expandedIndex]);
+
+  // Remove objective when summary is submitted
+  const handleRemoveObjective = idx => {
+    setObjectives(objectives.filter((_, i) => i !== idx));
+  };
+
+  // Edit Objective Title
+  const handleEditObj = (idx) => {
+    setEditObjIndex(idx);
+    setEditValue(objectives[idx].title);
+  };
+  const handleSaveObj = (idx) => {
+    const updated = [...objectives];
+    updated[idx].title = editValue;
+    setObjectives(updated);
+    setEditObjIndex(null);
+    setEditValue('');
+  };
+
+  // Add Key Result
+  const handleAddKR = idx => {
+    if (!newKRText.trim()) return;
+    const updated = [...objectives];
+    updated[idx].keyResults.push({ text: newKRText, percent: 0, success: 0, feedback: '' });
+    setObjectives(updated);
+    setNewKRIdx(null);
+    setNewKRText('');
+  };
+
+  // Edit Key Result
+  const handleEditKR = (objIdx, krIdx) => {
+    setEditKRIndex({ obj: objIdx, kr: krIdx });
+    setEditValue(objectives[objIdx].keyResults[krIdx].text);
+  };
+  const handleSaveKR = (objIdx, krIdx) => {
+    const updated = [...objectives];
+    updated[objIdx].keyResults[krIdx].text = editValue;
+    setObjectives(updated);
+    setEditKRIndex({ obj: null, kr: null });
+    setEditValue('');
+  };
+
+  // Draft Summary and animate removal
+  const handleSaveSummary = idx => {
+    setSummaryIdx(null);
+    setSummaryDraft('');
+    setRemovingIdx(idx);
+    // Wait for animation to finish before removing
+    setTimeout(() => {
+      handleRemoveObjective(idx);
+      setRemovingIdx(null);
+    }, 600); // match animation duration
+  };
+
+  // Provide Feedback
+  const handleSaveFeedback = (objIdx, krIdx) => {
+    const updated = [...objectives];
+    updated[objIdx].keyResults[krIdx].feedback = feedbackDraft;
+    setObjectives(updated);
+    setFeedbackIdx({ obj: null, kr: null });
+    setFeedbackDraft('');
+  };
+
+  return (
+    <div>
+      <h2>Reporting</h2>
+      {/* No add objective UI here, just show objectives */}
+      {objectives.map((obj, cardIdx) => (
+        <div
+          key={cardIdx}
+          className={`reporting-card-anim-wrapper${removingIdx === cardIdx ? ' exit-right' : ''}${removingIdx !== null && cardIdx > removingIdx ? ' slide-up' : ''}`}
+          style={{ transition: 'transform 0.6s cubic-bezier(0.4,0,0.2,1), opacity 0.6s', willChange: 'transform, opacity' }}
+        >
+          <Card
+            className={expandedIndex === cardIdx ? 'card-expanded' : 'card-collapsed'}
+            style={{ width: '100%', marginBottom: 10, minHeight: expandedIndex === cardIdx ? 140 : 70, transition: 'height 0.3s' }}
+            bodyStyle={{ paddingTop: 0, paddingBottom: 0 }}
+          >
+          <Flex align="center" style={{ height: '70px' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div style={{ fontSize: 12, color: '#888', fontWeight: 'bold' }}>Title</div>
+              <div style={{ fontSize: 11, fontWeight: '700', marginTop: 3, display: 'flex', alignItems: 'center' }}>
+                {editObjIndex === cardIdx ? (
+                  <>
+                    <Input
+                      value={editValue}
+                      onChange={e => setEditValue(e.target.value)}
+                      onPressEnter={() => handleSaveObj(cardIdx)}
+                      size="small"
+                      style={{ width: '80%' }}
+                      autoFocus
+                    />
+                    <Button
+                      icon={<SaveOutlined />}
+                      type="link"
+                      size="small"
+                      onClick={() => handleSaveObj(cardIdx)}
+                      style={{ marginLeft: 8 }}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <span style={{ flex: 1 }}>{obj.title}</span>
+                    <Button
+                      icon={<EditOutlined />}
+                      type="link"
+                      size="small"
+                      onClick={() => handleEditObj(cardIdx)}
+                      style={{ marginLeft: 8 }}
+                    />
+                  </>
+                )}
+              </div>
+            </div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 12px', borderLeft: '1px solid #e0e0e0' }}>
+              <div style={{ fontSize: 12, color: '#888', fontWeight: 'bold' }}>Owner</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Avatar src={obj.owner.avatar} size={24} />
+                <span>{obj.owner.name}</span>
+              </div>
+            </div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 12px', borderLeft: '1px solid #e0e0e0' }}>
+              <div style={{ fontSize: 12, color: '#888', fontWeight: 'bold' }}>Team</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {obj.team.icon}
+                <span>{obj.team.name}</span>
+              </div>
+            </div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 12px', borderLeft: '1px solid #e0e0e0' }}>
+              <div style={{ fontSize: 12, color: '#888', fontWeight: 'bold' }}>Date Created</div>
+              <div>{obj.dateCreated}</div>
+            </div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '0 12px', borderLeft: '1px solid #e0e0e0' }}>
+              <Tooltip title={`${obj.objectiveSuccess}% done / ${obj.objectivePercent - obj.objectiveSuccess}% in progress`}>
+                <Progress percent={obj.objectivePercent} success={{ percent: obj.objectiveSuccess }} type="circle" width={48} />
+              </Tooltip>
+            </div>
+            <div style={{ marginLeft: 12, cursor: 'pointer', height: '100%', display: 'flex', alignItems: 'center' }}
+              onClick={() => setExpandedIndex(expandedIndex === cardIdx ? null : cardIdx)}>
+              {expandedIndex === cardIdx ? <UpOutlined /> : <DownOutlined />}
+            </div>
+          </Flex>
+          {expandedIndex === cardIdx && (
+            <div style={{ borderBottom: '1px solid #e0e0e0', width: '100%' }} />
+          )}
+{/* Summary Drafting (Modal) */}
+          {expandedIndex === cardIdx && (
+            <div style={{ margin: '12px 0' }}>
+              <b>Summary:</b>
+              <span style={{ marginLeft: 8 }}>{obj.summary || <i>No summary drafted</i>}</span>
+              <Button type="link" size="small" onClick={() => { setSummaryIdx(cardIdx); setSummaryDraft(obj.summary); }}>Draft/Edit</Button>
+              {/* Modal for summary editing */}
+              <Modal
+                title="Draft/Edit Summary"
+                open={summaryIdx === cardIdx}
+                onOk={() => handleSaveSummary(cardIdx)}
+                onCancel={() => { setSummaryIdx(null); setSummaryDraft(''); }}
+                okText="Save"
+                cancelText="Cancel"
+                className={removingIdx === cardIdx ? 'modal-shrink' : ''}
+                maskClosable={false}
+              >
+                <Input.TextArea
+                  value={summaryDraft}
+                  onChange={e => setSummaryDraft(e.target.value)}
+                  rows={4}
+                  autoFocus
+                  placeholder="Write your summary here..."
+                />
+              </Modal>
+            </div>
+          )}
+          {/* Key Results */}
+          {expandedIndex === cardIdx && obj.keyResults.map((kr, idx) => (
+            <div
+              key={idx}
+              className={`key-result-slide${showKeyResults ? ' visible' : ''}`}
+              style={{ transitionDelay: `${idx * 80}ms` }}
+            >
+              <Flex align="center" style={{ padding: '12px 0' }}>
+                {editKRIndex.obj === cardIdx && editKRIndex.kr === idx ? (
+                  <>
+                    <Input
+                      value={editValue}
+                      onChange={e => setEditValue(e.target.value)}
+                      onPressEnter={() => handleSaveKR(cardIdx, idx)}
+                      size="small"
+                      style={{ flex: 1, marginRight: 8 }}
+                      autoFocus
+                    />
+                    <Button
+                      icon={<SaveOutlined />}
+                      type="link"
+                      size="small"
+                      onClick={() => handleSaveKR(cardIdx, idx)}
+                      style={{ marginRight: 12 }}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <span style={{ flex: 1, fontWeight: '400', fontSize: 15, marginRight: 8 }}>
+                      {kr.text}
+                    </span>
+                    <Button
+                      icon={<EditOutlined />}
+                      type="link"
+                      size="small"
+                      onClick={() => handleEditKR(cardIdx, idx)}
+                      style={{ marginRight: 12 }}
+                    />
+                  </>
+                )}
+                <Tooltip title={`${kr.success}% done / ${kr.percent - kr.success}% in progress`}>
+                  <div style={{ flex: 2 }}>
+                    <Progress percent={kr.percent} success={{ percent: kr.success }} />
+                  </div>
+                </Tooltip>
+                {/* Feedback */}
+                {feedbackIdx.obj === cardIdx && feedbackIdx.kr === idx ? (
+                  <>
+                    <Input
+                      value={feedbackDraft}
+                      onChange={e => setFeedbackDraft(e.target.value)}
+                      size="small"
+                      style={{ width: 120, marginLeft: 8 }}
+                      autoFocus
+                    />
+                    <Button type="primary" size="small" onClick={() => handleSaveFeedback(cardIdx, idx)} style={{ marginLeft: 4 }}>Save</Button>
+                  </>
+                ) : (
+                  <Button type="link" size="small" onClick={() => { setFeedbackIdx({ obj: cardIdx, kr: idx }); setFeedbackDraft(kr.feedback || ''); }} style={{ marginLeft: 8 }}>Feedback</Button>
+                )}
+              </Flex>
+              <div style={{ marginTop: 8 }}>
+                <b>Feedback:</b> {kr.feedback ? kr.feedback : <i>No feedback</i>}
+              </div>
+              {idx < obj.keyResults.length - 1 && (
+                <div style={{ borderBottom: '1px solid #e0e0e0', width: '100%' }} />
+              )}
+            </div>
+          ))}
+          {/* Add Key Result */}
+          {expandedIndex === cardIdx && (
+            newKRIdx === cardIdx ? (
+              <div style={{ marginTop: 8 }}>
+                <Input
+                  value={newKRText}
+                  onChange={e => setNewKRText(e.target.value)}
+                  placeholder="Key Result description..."
+                  size="small"
+                  style={{ width: 200, marginRight: 8 }}
+                  autoFocus
+                />
+                <Button type="primary" size="small" onClick={() => handleAddKR(cardIdx)}>Add</Button>
+                <Button size="small" onClick={() => { setNewKRIdx(null); setNewKRText(''); }} style={{ marginLeft: 4 }}>Cancel</Button>
+              </div>
+            ) : (
+              <Button type="dashed" size="small" onClick={() => setNewKRIdx(cardIdx)} style={{ marginTop: 8 }}>Add Key Result</Button>
+            )
+          )}
+          </Card>
+        </div>
+      ))}
+    </div>
+  );
 }
 function Favorites() {
   return <h2>Favorites</h2>;
 }
-function Settings() {
-  return <h2>Settings</h2>;
-}
+
+const profileMenu = (
+  <Menu>
+    <Menu.Item key="profile">
+      <UserOutlined style={{ marginRight: 8 }} />
+      Profile
+    </Menu.Item>
+    <Menu.Item key="settings">
+      <SettingOutlined style={{ marginRight: 8 }} />
+      Settings
+    </Menu.Item>
+    <Menu.Item key="logout">
+      <PoweroffOutlined style={{ marginRight: 8 }} />
+      Logout
+    </Menu.Item>
+  </Menu>
+);
 
 function App() {
   const [collapsed, setCollapsed] = useState(false);
@@ -371,20 +675,29 @@ function App() {
             <Menu.Item key="favorites" icon={<StarOutlined />}>
               <Link to="/favorites">Favorites</Link>
             </Menu.Item>
-            <SubMenu key="settings" icon={<SettingOutlined />} title="Settings">
-              <Menu.Item key="profile" icon={<UserOutlined />}>
-                <Link to="/settings">Profile</Link>
-              </Menu.Item>
-              <Menu.Item key="preferences" icon={<HighlightOutlined />}>
-                <Link to="/settings">Preferences</Link>
-              </Menu.Item>
-            </SubMenu>
           </Menu>
         </Sider>
         <Layout>
-          <Header style={{ background: '#fff', padding: 0, textAlign: 'left', fontWeight: 'bolder', borderBottom: '1px solid #e0e0e0', marginLeft: '8px', height: 32, lineHeight: '32px' }}>
-            Search
-          </Header>
+          <Header
+  style={{
+    background: '#fff',
+    padding: '0 24px',
+    textAlign: 'left',
+    fontWeight: 'bolder',
+    borderBottom: '1px solid #e0e0e0',
+    marginLeft: '8px',
+    height: 32,
+    lineHeight: '32px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  }}
+>
+  <span>Search</span>
+  <Dropdown overlay={profileMenu} placement="bottomRight" trigger={['click']}>
+    <Avatar icon={<UserOutlined style={{ color: '#00264d' }} />} style={{ backgroundColor: '#dcdee1ff', cursor: 'pointer' }} />
+  </Dropdown>
+</Header>
           <Header style={{ background: '#fff', padding: 0, textAlign: 'left', fontWeight: 'bolder', borderBottom: '1px solid #e0e0e0', marginLeft: '8px', marginTop: 0, height: 32, lineHeight: '32px' }}>
             Tabs
           </Header>
@@ -396,7 +709,6 @@ function App() {
                 <Route path="/collaboration" element={<Collaboration />} />
                 <Route path="/learning" element={<Learning />} />
                 <Route path="/favorites" element={<Favorites />} />
-                <Route path="/settings" element={<Settings />} />
               </Routes>
             </div>
           </Content>
