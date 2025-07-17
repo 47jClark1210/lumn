@@ -359,7 +359,7 @@ function App() {
 >
   <span>Search</span>
   <Dropdown overlay={profileMenu} placement="bottomRight" trigger={['click']}>
-    <Avatar icon={<UserOutlined style={{ color: '#1890ff' }} />} style={{ backgroundColor: '#dcdee1ff', cursor: 'pointer' }} />
+    <Avatar icon={<UserOutlined style={{ color: '#00264d' }} />} style={{ backgroundColor: '#dcdee1ff', cursor: 'pointer' }} />
   </Dropdown>
 </Header>
           <Header style={{ background: '#fff', padding: 0, textAlign: 'left', fontWeight: 'bolder', borderBottom: '1px solid #e0e0e0', marginLeft: '8px', marginTop: 0, height: 32, lineHeight: '32px' }}>
