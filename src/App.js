@@ -1,5 +1,5 @@
 import './App.css';
-import { Layout, Menu, Card, Input, Button, Tooltip, Progress, Flex, Avatar } from 'antd';
+import { Layout, Menu, Card, Input, Button, Tooltip, Progress, Flex, Avatar, Dropdown } from 'antd';
 import React, { useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
@@ -7,8 +7,7 @@ import {
   Route,
   Link
 } from 'react-router-dom';
-import { PieChartOutlined, ExperimentOutlined, StarOutlined, TeamOutlined, SolutionOutlined, SettingOutlined, UserOutlined, HighlightOutlined, EditOutlined, UpOutlined, DownOutlined, SaveOutlined, RocketOutlined, ToolOutlined } from '@ant-design/icons';
-import SubMenu from 'antd/es/menu/SubMenu';
+import { PieChartOutlined, ExperimentOutlined, StarOutlined, TeamOutlined, SolutionOutlined, SettingOutlined, UserOutlined, EditOutlined, UpOutlined, DownOutlined, SaveOutlined, RocketOutlined, ToolOutlined, PoweroffOutlined } from '@ant-design/icons';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -246,9 +245,23 @@ function Reporting() {
 function Favorites() {
   return <h2>Favorites</h2>;
 }
-function Settings() {
-  return <h2>Settings</h2>;
-}
+
+const profileMenu = (
+  <Menu>
+    <Menu.Item key="profile">
+      <UserOutlined style={{ marginRight: 8 }} />
+      Profile
+    </Menu.Item>
+    <Menu.Item key="settings">
+      <SettingOutlined style={{ marginRight: 8 }} />
+      Settings
+    </Menu.Item>
+    <Menu.Item key="logout">
+      <PoweroffOutlined style={{ marginRight: 8 }} />
+      Logout
+    </Menu.Item>
+  </Menu>
+);
 
 function App() {
   const [collapsed, setCollapsed] = useState(false);
@@ -326,20 +339,29 @@ function App() {
             <Menu.Item key="favorites" icon={<StarOutlined />}>
               <Link to="/favorites">Favorites</Link>
             </Menu.Item>
-            <SubMenu key="settings" icon={<SettingOutlined />} title="Settings">
-              <Menu.Item key="profile" icon={<UserOutlined />}>
-                <Link to="/settings">Profile</Link>
-              </Menu.Item>
-              <Menu.Item key="preferences" icon={<HighlightOutlined />}>
-                <Link to="/settings">Preferences</Link>
-              </Menu.Item>
-            </SubMenu>
           </Menu>
         </Sider>
         <Layout>
-          <Header style={{ background: '#fff', padding: 0, textAlign: 'left', fontWeight: 'bolder', borderBottom: '1px solid #e0e0e0', marginLeft: '8px', height: 32, lineHeight: '32px' }}>
-            Search
-          </Header>
+          <Header
+  style={{
+    background: '#fff',
+    padding: '0 24px',
+    textAlign: 'left',
+    fontWeight: 'bolder',
+    borderBottom: '1px solid #e0e0e0',
+    marginLeft: '8px',
+    height: 32,
+    lineHeight: '32px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  }}
+>
+  <span>Search</span>
+  <Dropdown overlay={profileMenu} placement="bottomRight" trigger={['click']}>
+    <Avatar icon={<UserOutlined style={{ color: '#1890ff' }} />} style={{ backgroundColor: '#dcdee1ff', cursor: 'pointer' }} />
+  </Dropdown>
+</Header>
           <Header style={{ background: '#fff', padding: 0, textAlign: 'left', fontWeight: 'bolder', borderBottom: '1px solid #e0e0e0', marginLeft: '8px', marginTop: 0, height: 32, lineHeight: '32px' }}>
             Tabs
           </Header>
@@ -351,7 +373,6 @@ function App() {
                 <Route path="/collaboration" element={<Collaboration />} />
                 <Route path="/learning" element={<Learning />} />
                 <Route path="/favorites" element={<Favorites />} />
-                <Route path="/settings" element={<Settings />} />
               </Routes>
             </div>
           </Content>
