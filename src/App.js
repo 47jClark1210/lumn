@@ -1,9 +1,5 @@
 import './App.css';
-<<<<<<< HEAD
-import { Layout, Menu, Card, Input, Button, Tooltip, Progress, Flex, Avatar, Descriptions, List, Tag, Divider } from 'antd';
-=======
-import { Layout, Menu, Card, Input, Button, Tooltip, Progress, Flex, Avatar, Modal, Dropdown } from 'antd';
->>>>>>> 54ac6400eee44049e8de3438bc8aab9f4ce91e6c
+import { Layout, Menu, Card, Input, Button, Tooltip, Progress, Flex, Avatar, Descriptions, List, Tag, Divider, Modal, Dropdown } from 'antd';
 import React, { useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
@@ -11,7 +7,8 @@ import {
   Route,
   Link
 } from 'react-router-dom';
-import { PieChartOutlined, ExperimentOutlined, StarOutlined, TeamOutlined, SolutionOutlined, SettingOutlined, UserOutlined, EditOutlined, UpOutlined, DownOutlined, SaveOutlined, RocketOutlined, ToolOutlined, PoweroffOutlined } from '@ant-design/icons';
+import { PieChartOutlined, ExperimentOutlined, StarOutlined, TeamOutlined, SolutionOutlined, SettingOutlined, UserOutlined, HighlightOutlined, EditOutlined, UpOutlined, DownOutlined, SaveOutlined, RocketOutlined, ToolOutlined, PoweroffOutlined } from '@ant-design/icons';
+import SubMenu from 'antd/es/menu/SubMenu';
 
 const { Header, Content, Footer, Sider } = Layout;
 
