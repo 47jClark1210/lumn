@@ -223,5 +223,37 @@ body, #root, .ant-layout, .ant-layout-content {
   padding-top: 4px;
   padding-bottom: 4px;
 }
+/* Card exit right animation */
+.reporting-card-anim-wrapper.exit-right {
+  opacity: 1;
+  transform: translateX(100vw) scale(0.95);
+  transition: transform 0.8s cubic-bezier(0.4,0,0.2,1), opacity 0.8s;
+  z-index: 2;
+}
+/* Card slide up animation for next cards */
+.reporting-card-anim-wrapper.slide-up {
+  transform: translateY(-120px);
+  transition: transform 1.0s cubic-bezier(0.4,0,0.2,1);
+}
+/* Modal shrink animation */
+.ant-modal.modal-shrink {
+  animation: modalShrinkAnim 0.3s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+@keyframes modalShrinkAnim {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(0.7);
+    opacity: 0.2;
+  }
+}
 
 
