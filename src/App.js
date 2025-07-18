@@ -7,8 +7,7 @@ import {
   Route,
   Link
 } from 'react-router-dom';
-import { PieChartOutlined, ExperimentOutlined, StarOutlined, TeamOutlined, SolutionOutlined, SettingOutlined, UserOutlined, HighlightOutlined, EditOutlined, UpOutlined, DownOutlined, SaveOutlined, RocketOutlined, ToolOutlined, PoweroffOutlined } from '@ant-design/icons';
-import SubMenu from 'antd/es/menu/SubMenu';
+import { PieChartOutlined, ExperimentOutlined, StarOutlined, TeamOutlined, SolutionOutlined, SettingOutlined, UserOutlined, EditOutlined, UpOutlined, DownOutlined, SaveOutlined, RocketOutlined, ToolOutlined, PoweroffOutlined } from '@ant-design/icons';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -690,7 +689,12 @@ function App() {
     alignItems: 'center'
   }}
 >
-  <span>Search</span>
+  <Input.Search
+    placeholder="Search objectives, key results, teams..."
+    allowClear
+    style={{ width: 320 }}
+    onSearch={value => console.log(value)}
+  />
   <Dropdown overlay={profileMenu} placement="bottomRight" trigger={['click']}>
     <Avatar icon={<UserOutlined style={{ color: '#00264d' }} />} style={{ backgroundColor: '#dcdee1ff', cursor: 'pointer' }} />
   </Dropdown>
