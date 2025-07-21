@@ -1,5 +1,5 @@
 import './App.css';
-import { Layout, Menu, Card, Input, Button, Tooltip, Progress, Flex, Avatar, Modal, Dropdown } from 'antd';
+import { Layout, Menu, Card, Input, Button, Tooltip, Progress, Flex, Avatar, Descriptions, List, Tag, Divider, Modal, Dropdown } from 'antd';
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { PieChartOutlined, ExperimentOutlined, StarOutlined, TeamOutlined, SolutionOutlined, SettingOutlined, UserOutlined, EditOutlined, UpOutlined, DownOutlined, SaveOutlined, RocketOutlined, ToolOutlined, PoweroffOutlined} from '@ant-design/icons';
@@ -233,7 +233,52 @@ function Learning() {
   return <h2>Learning</h2>;
 }
 function Collaboration() {
-  return <h2>Collaboration</h2>;
+  // Example user and OKR data (replace with your real data)
+  const user = {
+    name: "Jane Doe",
+    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+    email: "jane.doe@email.com",
+    phone: "555-1234",
+    team: "Product Development"
+  };
+  const okrs = [
+    { title: "Improve User Engagement", status: "Active", progress: 80 },
+    { title: "Launch New Feature", status: "Completed", progress: 100 }
+  ];
+
+  return (
+    <Card style={{ maxWidth: 700, margin: '0 auto' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+        <Avatar src={user.avatar} size={64} />
+        <Descriptions title={user.name} column={1}>
+          <Descriptions.Item label="Email">{user.email}</Descriptions.Item>
+          <Descriptions.Item label="Phone">{user.phone}</Descriptions.Item>
+          <Descriptions.Item label="Team">
+            <Tag color="blue">{user.team}</Tag>
+          </Descriptions.Item>
+        </Descriptions>
+      </div>
+      <Divider />
+      <h3>OKRs Involved</h3>
+      <List
+        itemLayout="horizontal"
+        dataSource={okrs}
+        renderItem={okr => (
+          <List.Item>
+            <List.Item.Meta
+              title={okr.title}
+              description={
+                <>
+                  <Tag color={okr.status === 'Active' ? 'green' : 'red'}>{okr.status}</Tag>
+                  Progress: {okr.progress}%
+                </>
+              }
+            />
+          </List.Item>
+        )}
+      />
+    </Card>
+  );
 }
 function Reporting() {
   // Use the same structure as Analytics
