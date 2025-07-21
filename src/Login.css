@@ -1,0 +1,50 @@
+/* Login Page Styles */
+
+.login-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  text-align: center;
+  padding: 32px;
+  background: #fff;
+}
+
+.login-logo {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-title {
+  margin-bottom: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 2rem;
+  font-weight: 200;
+  font-style: italic;
+  color: #ffffff;
+}
+
+.login-desc {
+  color: #888;
+  font-size: 16px;
+}
+
+.login-sso-btn {
+  width: 100%;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 18px;
+  margin: 32px 0;
+}
+
+.login-profile {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-profile-avatar {
+  background-color: #dcdee1ff;
+  margin-right: 8px;
+}
