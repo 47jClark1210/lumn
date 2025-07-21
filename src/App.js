@@ -21,30 +21,21 @@ import {
   changePassword,
   uploadAvatar,
   searchAll
-} from './api'; // <-- Import your API functions
+} from './api';
 
 const { Header, Content, Footer, Sider } = Layout;
 
-// --- User and Utility Data ---
-const SAMPLE_USERS = [
-  { email: "jane.doe@email.com", isAdmin: true },
-  { email: "john.smith@email.com", isAdmin: false },
-  { email: "alice.lee@email.com", isAdmin: false },
-  { email: "bob.brown@email.com", isAdmin: true }
-];
-function getRandomUser() {
-  return SAMPLE_USERS[Math.floor(Math.random() * SAMPLE_USERS.length)];
-}
-
 // --- Custom Hook for Fetching OKRs ---
-function useOkrs() {
+function useOkrs(authToken) {
   const [okrs, setOkrs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     setLoading(true);
-    fetch('/api/okrs')
+    fetch('/api/okrs', {
+      headers: { Authorization: `Bearer ${authToken}` }
+    })
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch OKRs');
         return res.json();
@@ -57,14 +48,14 @@ function useOkrs() {
         setError(err.message);
         setLoading(false);
       });
-  }, []);
+  }, [authToken]);
 
   return { okrs, loading, error };
 }
 
 // --- Analytics Page ---
-function Analytics({ currentUser, isAdmin }) {
-  const { okrs, loading, error } = useOkrs();
+function Analytics({ currentUser, isAdmin, authToken }) {
+  const { okrs, loading, error } = useOkrs(authToken);
   const [expandedIndex, setExpandedIndex] = useState(null);
 
   if (loading) return <div>Loading OKRs...</div>;
@@ -148,41 +139,20 @@ function Analytics({ currentUser, isAdmin }) {
 }
 
 // --- Learning Page ---
-function Learning({ currentUser, isAdmin }) {
+function Learning() {
   return <h2>Learning</h2>;
 }
 
 // --- Collaboration Page ---
-function Collaboration({ currentUser, isAdmin }) {
-  const { okrs, loading, error } = useOkrs();
+function Collaboration({ authToken }) {
+  const { okrs, loading, error } = useOkrs(authToken);
 
   if (loading) return <div>Loading OKRs...</div>;
   if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
 
-  // Example user data (replace with real user info as needed)
-  const user = {
-    name: "Jane Doe",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    email: "jane.doe@email.com",
-    phone: "555-1234",
-    team: "Product Development"
-  };
-
+  // TODO: Replace with real user info from backend if needed
   return (
     <Card style={{ maxWidth: 700, margin: '0 auto' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-        <Avatar src={user.avatar} size={64} />
-        <List.Item.Meta
-          title={user.name}
-          description={
-            <>
-              <div>Email: {user.email}</div>
-              <div>Phone: {user.phone}</div>
-              <div>Team: <Tag color="blue">{user.team}</Tag></div>
-            </>
-          }
-        />
-      </div>
       <Divider />
       <h3>OKRs Involved</h3>
       <List
@@ -207,8 +177,8 @@ function Collaboration({ currentUser, isAdmin }) {
 }
 
 // --- Reporting Page ---
-function Reporting({ currentUser, isAdmin }) {
-  const { okrs, loading, error } = useOkrs();
+function Reporting({ authToken }) {
+  const { okrs, loading, error } = useOkrs(authToken);
   const [expandedIdx, setExpandedIdx] = useState(null);
   const [updatesModalOpen, setUpdatesModalOpen] = useState(false);
   const [selectedOkr, setSelectedOkr] = useState(null);
@@ -219,11 +189,6 @@ function Reporting({ currentUser, isAdmin }) {
   return (
     <div>
       <h2>Reporting</h2>
-      {isAdmin && (
-        <div style={{ marginBottom: 16, color: 'red' }}>
-          Admin Panel: You have admin privileges.
-        </div>
-      )}
       <div style={{ maxHeight: '70vh', overflowY: 'auto', paddingRight: 8 }}>
         {okrs.map((okr, idx) => (
           <React.Fragment key={okr.id || idx}>
@@ -478,8 +443,10 @@ function App() {
   const yourAuthToken = "your-auth-token"; // Replace with real token logic
 
   useEffect(() => {
-    setCurrentUser(getRandomUser());
-  }, []);
+    fetchUserProfile(yourAuthToken)
+      .then(data => setCurrentUser(data))
+      .catch(() => message.error('Failed to load user'));
+  }, [yourAuthToken]);
 
   const handleSearch = async (query) => {
     const results = await searchAll(query, yourAuthToken);
@@ -504,258 +471,124 @@ function App() {
   );
 
   return (
-    <Routes>
-      <Route path="/login" element={<Login onLoginSuccess={() => navigate('/')} />} />
-      <Route path="*" element={
-        <Layout style={{ minHeight: '100vh' }}>
-          <Sider
-            breakpoint="lg"
-            collapsedWidth={0}
-            collapsed={collapsed}
-            onCollapse={setCollapsed}
-            trigger={null}
-            width={200}
-            style={{ position: 'relative' }}
-          >
-            <div className="logos" style={{ color: 'white', textAlign: 'center', fontWeight: 'bold', padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-              <div className="logo-group-solar">
-                <img src="/Solar Eclipse Logo.png" alt="Solar Eclipse Logo" style={{ height: 32, marginRight: 4 }} />
-                <span style={{ fontSize: 10 }}>lumn</span>
-              </div>
-              <span className="vertical-bar">|</span>
-              <div className="logo-group-1898">
-                <img src="/1898Logo.png" alt="1898 Logo" style={{ height: 28, marginLeft: 1, marginRight: 4 }} />
-                <span style={{ fontSize: 10 }}>1898 & Co.</span>
-              </div>
-            </div>
-            {/* Custom close trigger, only visible when Sider is open */}
-            {!collapsed && (
-              <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '0 16px 8px 0' }}>
-                <span
-                  style={{ cursor: 'pointer', fontSize: 18, color: '#fff', transition: 'transform 0.3s' }}
-                  onClick={() => setCollapsed(true)}
-                >
-                  &times;
-                </span>
-              </div>
-            )}
-            {/* Stock trigger, always rendered, slides in/out from behind the Sider */}
-            <span
-              className="ant-layout-sider-zero-width-trigger custom-stock-trigger"
-              style={{
-                position: 'absolute',
-                top: 80,
-                right: collapsed ? -40 : -200,
-                zIndex: 1100,
-                background: '#001529',
-                color: '#fff',
-                fontSize: 22,
-                padding: '8px 10px',
-                borderRadius: '0 4px 4px 0',
-                boxShadow: '1px 0 4px rgba(0,0,0,0.08)',
-                cursor: collapsed ? 'pointer' : 'default',
-                opacity: collapsed ? 1 : 0,
-                pointerEvents: collapsed ? 'auto' : 'none',
-                transition: 'right 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.5s',
-              }}
-              onClick={() => collapsed && setCollapsed(false)}
-            >
-              &#9776;
-            </span>
-            <Menu theme="dark" mode="inline" defaultSelectedKeys={['dashboard']}>
-              <Menu.Item key="analytics" icon={<PieChartOutlined />}>
-                <Link to="/">Analytics</Link>
-              </Menu.Item>
-              <Menu.Item key="learning" icon={<ExperimentOutlined />}>
-                <Link to="/learning">Learning</Link>
-              </Menu.Item>
-              <Menu.Item key="collaboration" icon={<TeamOutlined />}>
-                <Link to="/collaboration">Collaboration</Link>
-              </Menu.Item>
-              <Menu.Item key="reporting" icon={<SolutionOutlined />}>
-                <Link to="/reporting">Reporting</Link>
-              </Menu.Item>
-              <Menu.Item key="favorites" icon={<StarOutlined />}>
-                <Link to="/favorites">Favorites</Link>
-              </Menu.Item>
-            </Menu>
-          </Sider>
-          <Layout>
-            <Header
-              style={{
-                background: '#fff',
-                padding: '0 24px',
-                textAlign: 'left',
-                fontWeight: 'bolder',
-                borderBottom: '1px solid #e0e0e0',
-                marginLeft: '8px',
-                height: 32,
-                lineHeight: '32px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
-            >
-              <Input.Search
-                placeholder="Search objectives, key results, teams..."
-                allowClear
-                style={{ width: 320 }}
-                onSearch={value => console.log(value)} // Replace with your search logic
-              />
-              <Dropdown overlay={<ProfileMenu onLogout={handleLogout} />} placement="bottomRight" trigger={['click']}>
-                <Avatar icon={<UserOutlined style={{ color: '#00264d' }} />} style={{ backgroundColor: '#dcdee1ff', cursor: 'pointer' }} />
-              </Dropdown>
-            </Header>
-            <Header style={{ background: '#fff', padding: 0, textAlign: 'left', fontWeight: 'bolder', borderBottom: '1px solid #e0e0e0', marginLeft: '8px', marginTop: 0, height: 32, lineHeight: '32px' }}>
-              Tabs
-            </Header>
-            <Content style={{ margin: '24px 16px 0', overflow: 'visible' }}>
-              <div style={{ padding: 24, background: '#fff', minHeight: 360, overflow: 'visible' }}>
-                <Routes>
-                  <Route path="/" element={<Analytics />} />
-                  <Route path="/reporting" element={<Reporting />} />
-                  <Route path="/collaboration" element={<Collaboration />} />
-                  <Route path="/learning" element={<Learning />} />
-                  <Route path="/favorites" element={<Favorites />} />
-                </Routes>
-              </div>
-            </Content>
-            <Footer style={{ textAlign: 'center', fontWeight: 'lighter' }}>
-              lumn ©2025 Created by Ethereal Strategies
-            </Footer>
-          </Layout>
-        </Layout>
-      } />
-    </Routes>
-    <Router>
-      <Layout style={{ minHeight: '100vh' }}>
-        <Sider
-          breakpoint="lg"
-          collapsedWidth={0}
-          collapsed={collapsed}
-          onCollapse={setCollapsed}
-          trigger={null}
-          width={200}
-          style={{ position: 'relative' }}
-        >
-          <div className="logos" style={{ color: 'white', textAlign: 'center', fontWeight: 'bold', padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-            <div className="logo-group-solar">
-              <img src="/Solar Eclipse Logo.png" alt="Solar Eclipse Logo" style={{ height: 28, marginRight: 4 }} />
-              <span style={{ fontSize: 10 }}>lumn</span>
-            </div>
-            <span className="vertical-bar">|</span>
-            <div className="logo-group-1898">
-              <img src="/1898Logo.png" alt="1898 Logo" style={{ height: 28, marginLeft: 1, marginRight: 4 }} />
-              <span style={{ fontSize: 10 }}>1898 & Co.</span>
-            </div>
+    <Layout style={{ minHeight: '100vh' }}>
+      <Sider
+        breakpoint="lg"
+        collapsedWidth={0}
+        collapsed={collapsed}
+        onCollapse={setCollapsed}
+        trigger={null}
+        width={200}
+        style={{ position: 'relative' }}
+      >
+        <div className="logos" style={{ color: 'white', textAlign: 'center', fontWeight: 'bold', padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <div className="logo-group-solar">
+            <img src="/Solar Eclipse Logo.png" alt="Solar Eclipse Logo" style={{ height: 32, marginRight: 4 }} />
+            <span style={{ fontSize: 10 }}>lumn</span>
           </div>
-          {!collapsed && (
-            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '0 16px 8px 0' }}>
-              <span
-                style={{ cursor: 'pointer', fontSize: 18, color: '#fff', transition: 'transform 0.3s' }}
-                onClick={() => setCollapsed(true)}
-              >
-                &times;
-              </span>
-            </div>
-          )}
-          <span
-            className="ant-layout-sider-zero-width-trigger custom-stock-trigger"
-            style={{
-              position: 'absolute',
-              top: 80,
-              right: collapsed ? -40 : -200,
-              zIndex: 1100,
-              background: '#001529',
-              color: '#fff',
-              fontSize: 22,
-              padding: '8px 10px',
-              borderRadius: '0 4px 4px 0',
-              boxShadow: '1px 0 4px rgba(0,0,0,0.08)',
-              cursor: collapsed ? 'pointer' : 'default',
-              opacity: collapsed ? 1 : 0,
-              pointerEvents: collapsed ? 'auto' : 'none',
-              transition: 'right 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.5s',
-            }}
-            onClick={() => collapsed && setCollapsed(false)}
-          >
-            &#9776;
-          </span>
-          <Menu theme="dark" mode="inline" defaultSelectedKeys={['dashboard']}>
-            <Menu.Item key="analytics" icon={<PieChartOutlined />}>
-              <Link to="/">Analytics</Link>
-            </Menu.Item>
-            <Menu.Item key="learning" icon={<ExperimentOutlined />}>
-              <Link to="/learning">Learning</Link>
-            </Menu.Item>
-            <Menu.Item key="collaboration" icon={<TeamOutlined />}>
-              <Link to="/collaboration">Collaboration</Link>
-            </Menu.Item>
-            <Menu.Item key="reporting" icon={<SolutionOutlined />}>
-              <Link to="/reporting">Reporting</Link>
-            </Menu.Item>
-            <Menu.Item key="favorites" icon={<StarOutlined />}>
-              <Link to="/favorites">Favorites</Link>
-            </Menu.Item>
-          </Menu>
-        </Sider>
-        <Layout>
-          <Header
-            style={{
-              background: '#fff',
-              padding: '0 24px',
-              textAlign: 'left',
-              fontWeight: 'bolder',
-              borderBottom: '1px solid #e0e0e0',
-              marginLeft: '8px',
-              height: 32,
-              lineHeight: '32px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}
-          >
-            <span>Search</span>
-            <Dropdown overlay={profileMenu} placement="bottomRight" trigger={['click']}>
-              <Avatar icon={<UserOutlined style={{ color: '#00264d' }} />} style={{ backgroundColor: '#dcdee1ff', cursor: 'pointer' }} />
-            </Dropdown>
-          </Header>
-          <Header style={{ background: '#fff', padding: 0, textAlign: 'left', fontWeight: 'bolder', borderBottom: '1px solid #e0e0e0', marginLeft: '8px', marginTop: 0, height: 32, lineHeight: '32px' }}>
-            Tabs
-          </Header>
-          <Content style={{ margin: '24px 16px 0', overflow: 'visible' }}>
-            <div style={{ padding: 24, background: '#fff', minHeight: 360, overflow: 'visible' }}>
-              <Routes>
-                <Route
-                  path="/"
-                  element={<Analytics currentUser={currentUser.email} isAdmin={currentUser.isAdmin} />}
-                />
-                <Route
-                  path="/reporting"
-                  element={<Reporting currentUser={currentUser.email} isAdmin={currentUser.isAdmin} />}
-                />
-                <Route
-                  path="/collaboration"
-                  element={<Collaboration currentUser={currentUser.email} isAdmin={currentUser.isAdmin} />}
-                />
-                <Route
-                  path="/learning"
-                  element={<Learning currentUser={currentUser.email} isAdmin={currentUser.isAdmin} />}
-                />
-                <Route
-                  path="/favorites"
-                  element={<Favorites />}
-                />
-                <Route path="/profile" element={<ProfilePage yourAuthToken={yourAuthToken} />} />
-              </Routes>
-            </div>
-          </Content>
-          <Footer style={{ textAlign: 'center', fontWeight: 'lighter' }}>
-            lumn ©2025 Created by Ethereal Strategies
-          </Footer>
-        </Layout>
+          <span className="vertical-bar">|</span>
+          <div className="logo-group-1898">
+            <img src="/1898Logo.png" alt="1898 Logo" style={{ height: 28, marginLeft: 1, marginRight: 4 }} />
+            <span style={{ fontSize: 10 }}>1898 & Co.</span>
+          </div>
+        </div>
+        {!collapsed && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '0 16px 8px 0' }}>
+            <span
+              style={{ cursor: 'pointer', fontSize: 18, color: '#fff', transition: 'transform 0.3s' }}
+              onClick={() => setCollapsed(true)}
+            >
+              &times;
+            </span>
+          </div>
+        )}
+        <span
+          className="ant-layout-sider-zero-width-trigger custom-stock-trigger"
+          style={{
+            position: 'absolute',
+            top: 80,
+            right: collapsed ? -40 : -200,
+            zIndex: 1100,
+            background: '#001529',
+            color: '#fff',
+            fontSize: 22,
+            padding: '8px 10px',
+            borderRadius: '0 4px 4px 0',
+            boxShadow: '1px 0 4px rgba(0,0,0,0.08)',
+            cursor: collapsed ? 'pointer' : 'default',
+            opacity: collapsed ? 1 : 0,
+            pointerEvents: collapsed ? 'auto' : 'none',
+            transition: 'right 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.5s',
+          }}
+          onClick={() => collapsed && setCollapsed(false)}
+        >
+          &#9776;
+        </span>
+        <Menu theme="dark" mode="inline" defaultSelectedKeys={['dashboard']}>
+          <Menu.Item key="analytics" icon={<PieChartOutlined />}>
+            <Link to="/">Analytics</Link>
+          </Menu.Item>
+          <Menu.Item key="learning" icon={<ExperimentOutlined />}>
+            <Link to="/learning">Learning</Link>
+          </Menu.Item>
+          <Menu.Item key="collaboration" icon={<TeamOutlined />}>
+            <Link to="/collaboration">Collaboration</Link>
+          </Menu.Item>
+          <Menu.Item key="reporting" icon={<SolutionOutlined />}>
+            <Link to="/reporting">Reporting</Link>
+          </Menu.Item>
+          <Menu.Item key="favorites" icon={<StarOutlined />}>
+            <Link to="/favorites">Favorites</Link>
+          </Menu.Item>
+        </Menu>
+      </Sider>
+      <Layout>
+        <Header
+          style={{
+            background: '#fff',
+            padding: '0 24px',
+            textAlign: 'left',
+            fontWeight: 'bolder',
+            borderBottom: '1px solid #e0e0e0',
+            marginLeft: '8px',
+            height: 32,
+            lineHeight: '32px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <Input.Search
+            placeholder="Search objectives, key results, teams..."
+            allowClear
+            style={{ width: 320 }}
+            onSearch={handleSearch}
+          />
+          <Dropdown overlay={profileMenu} placement="bottomRight" trigger={['click']}>
+            <Avatar icon={<UserOutlined style={{ color: '#00264d' }} />} style={{ backgroundColor: '#dcdee1ff', cursor: 'pointer' }} />
+          </Dropdown>
+        </Header>
+        <Header style={{ background: '#fff', padding: 0, textAlign: 'left', fontWeight: 'bolder', borderBottom: '1px solid #e0e0e0', marginLeft: '8px', marginTop: 0, height: 32, lineHeight: '32px' }}>
+          Tabs
+        </Header>
+        <Content style={{ margin: '24px 16px 0', overflow: 'visible' }}>
+          <div style={{ padding: 24, background: '#fff', minHeight: 360, overflow: 'visible' }}>
+            <Routes>
+              <Route path="/login" element={<Login onLoginSuccess={() => navigate('/')} />} />
+              <Route path="/" element={<Analytics currentUser={currentUser.email} isAdmin={currentUser.isAdmin} authToken={yourAuthToken} />} />
+              <Route path="/reporting" element={<Reporting authToken={yourAuthToken} />} />
+              <Route path="/collaboration" element={<Collaboration authToken={yourAuthToken} />} />
+              <Route path="/learning" element={<Learning />} />
+              <Route path="/favorites" element={<Favorites />} />
+              <Route path="/profile" element={<ProfilePage yourAuthToken={yourAuthToken} />} />
+            </Routes>
+          </div>
+        </Content>
+        <Footer style={{ textAlign: 'center', fontWeight: 'lighter' }}>
+          lumn ©2025 Created
+        </Footer>
       </Layout>
-    </Router>
+    </Layout>
   );
 }
 
