@@ -6,7 +6,7 @@ body, #root, .ant-layout, .ant-layout-content {
 .custom-stock-trigger {
   position: absolute;
   top: 80px;
-  right: 0; /* Ensure it aligns with the Sider */
+  right: 0;
   z-index: 1100;
   background: #001529;
   color: #fff;
@@ -16,14 +16,15 @@ body, #root, .ant-layout, .ant-layout-content {
   box-shadow: 1px 0 4px rgba(0, 0, 0, 0.08);
   cursor: pointer;
   transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s;
+  animation: sidebarPulse 1.5s infinite alternate;
 }
 .custom-stock-trigger.slide-behind {
-  right: -48px; /* Move behind the Sider */
+  right: -48px;
   opacity: 0;
   pointer-events: none;
 }
 .custom-stock-trigger.slide-out {
-  right: 0; /* Flush with the Sider */
+  right: 0;
   opacity: 1;
   pointer-events: auto;
 }
@@ -34,14 +35,14 @@ body, #root, .ant-layout, .ant-layout-content {
   position: absolute;
   right: 0;
   z-index: 1100;
-  will-change: right, opacity; /* Optimize animation performance */
+  will-change: right, opacity;
 }
 .ant-layout-sider-trigger.slide-out {
-  right: -48px; /* Move out of view */
+  right: -48px;
   opacity: 0;
 }
 .ant-layout-sider-trigger.slide-in {
-  right: 0; /* Align with the Sider */
+  right: 0;
   opacity: 1;
 }
 
@@ -62,7 +63,7 @@ body, #root, .ant-layout, .ant-layout-content {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-right: 8px; /* Add some space between the logos */
+  margin-right: 8px;
 }
 
 .logos .logo-group-1898 {
@@ -70,23 +71,23 @@ body, #root, .ant-layout, .ant-layout-content {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-left: 8px; /* Add some space between the logos */
+  margin-left: 8px;
 }
 
 .logos img {
   width: 35px;
-  height: 55px; /* Ensure logos are not too large */
+  height: 55px;
   object-fit: fill;
-  transform: scale(1.5); /* Scale the logos */
+  transform: scale(1.5);
   margin-bottom: 10px;
 }
 
 .logos .vertical-bar {
   font-size: 24px;
   font-weight: 50;
-  line-height: 1; /* Ensure the vertical bar is centered */
-  flex-shrink: 0; /* Prevent the bar from shrinking */
-  margin: 0 10px; /* Add some space around the vertical bar */
+  line-height: 1;
+  flex-shrink: 0;
+  margin: 0 10px;
 }
 
 /* General App styling */
@@ -97,7 +98,7 @@ body, #root, .ant-layout, .ant-layout-content {
 .App-logo {
   height: 40vmin;
   pointer-events: none;
-  will-change: transform; /* Optimize animation performance */
+  will-change: transform;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -167,7 +168,6 @@ body, #root, .ant-layout, .ant-layout-content {
 .card-expanded {
   width: 100vw;
   transition: height 0.3s;
-  overflow: hidden;
   border-radius: 12px;
   border: #707377 1.5px solid;
   position: relative;
@@ -200,17 +200,21 @@ body, #root, .ant-layout, .ant-layout-content {
   border-color: #61dafb;
 }
 
+/* Card hover elevation for both collapsed and expanded */
+.card-collapsed:hover, .card-expanded:hover {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  border-color: #1890ff;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
 /* Key Result enter animation */
 .key-result-slide {
-  max-height: 0;
   opacity: 0;
-  transform: translateY(-20px);
-  overflow: hidden;
-  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s, transform 0.2s;
+  transform: translateY(16px);
+  transition: opacity 0.3s, transform 0.3s;
 }
 
 .key-result-slide.visible {
-  max-height: 120px; /* adjust as needed */
   opacity: 1;
   transform: translateY(0);
 }
@@ -223,22 +227,28 @@ body, #root, .ant-layout, .ant-layout-content {
   padding-top: 4px;
   padding-bottom: 4px;
 }
-/* Card exit right animation */
-.reporting-card-anim-wrapper.exit-right {
-  opacity: 1;
-  transform: translateX(100vw) scale(0.95);
-  transition: transform 0.8s cubic-bezier(0.4,0,0.2,1), opacity 0.8s;
-  z-index: 2;
+
+/* Sidebar trigger pulse */
+@keyframes sidebarPulse {
+  from { box-shadow: 1px 0 4px rgba(0,0,0,0.08);}
+  to { box-shadow: 1px 0 12px rgba(24,144,255,0.18);}
 }
-/* Card slide up animation for next cards */
-.reporting-card-anim-wrapper.slide-up {
-  transform: translateY(-120px);
-  transition: transform 1.0s cubic-bezier(0.4,0,0.2,1);
+
+/* Indicator blink */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
-/* Modal shrink animation */
-.ant-modal.modal-shrink {
-  animation: modalShrinkAnim 0.3s cubic-bezier(0.4,0,0.2,1) forwards;
+
+/* Modal fade/scale in */
+.ant-modal {
+  animation: modalFadeIn 0.3s;
 }
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.96);}
+  to { opacity: 1; transform: scale(1);}
+}
+
 @keyframes modalShrinkAnim {
   0% {
     transform: scale(1);
@@ -254,6 +264,11 @@ body, #root, .ant-layout, .ant-layout-content {
     transform: scale(0.7);
     opacity: 0.2;
   }
+}
+
+/* Modal shrink animation */
+.ant-modal.modal-shrink {
+  animation: modalShrinkAnim 0.5s cubic-bezier(0.4,0,0.2,1) forwards;
 }
 
 
