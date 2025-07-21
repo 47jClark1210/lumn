@@ -618,7 +618,7 @@ function App() {
           >
             <div className="logos" style={{ color: 'white', textAlign: 'center', fontWeight: 'bold', padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
               <div className="logo-group-solar">
-                <img src="/Solar Eclipse Logo.png" alt="Solar Eclipse Logo" style={{ height: 28, marginRight: 4 }} />
+                <img src="/Solar Eclipse Logo.png" alt="Solar Eclipse Logo" style={{ height: 32, marginRight: 4 }} />
                 <span style={{ fontSize: 10 }}>lumn</span>
               </div>
               <span className="vertical-bar">|</span>
@@ -695,7 +695,12 @@ function App() {
                 alignItems: 'center'
               }}
             >
-              <span>Search</span>
+              <Input.Search
+                placeholder="Search objectives, key results, teams..."
+                allowClear
+                style={{ width: 320 }}
+                onSearch={value => console.log(value)} // Replace with your search logic
+              />
               <Dropdown overlay={<ProfileMenu onLogout={handleLogout} />} placement="bottomRight" trigger={['click']}>
                 <Avatar icon={<UserOutlined style={{ color: '#00264d' }} />} style={{ backgroundColor: '#dcdee1ff', cursor: 'pointer' }} />
               </Dropdown>
