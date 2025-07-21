@@ -687,7 +687,7 @@ function App() {
                 textAlign: 'left',
                 fontWeight: 'bolder',
                 borderBottom: '1px solid #e0e0e0',
-                marginLeft: '8px',
+                marginLeft: '0px',
                 height: 32,
                 lineHeight: '32px',
                 display: 'flex',
@@ -698,15 +698,12 @@ function App() {
               <Input.Search
                 placeholder="Search objectives, key results, teams..."
                 allowClear
-                style={{ width: 320 }}
+                style={{ width: 999, height: 32, lineHeight: '32px', borderRadius: 999, marginRight: 16 }}
                 onSearch={value => console.log(value)} // Replace with your search logic
               />
               <Dropdown overlay={<ProfileMenu onLogout={handleLogout} />} placement="bottomRight" trigger={['click']}>
                 <Avatar icon={<UserOutlined style={{ color: '#00264d' }} />} style={{ backgroundColor: '#dcdee1ff', cursor: 'pointer' }} />
               </Dropdown>
-            </Header>
-            <Header style={{ background: '#fff', padding: 0, textAlign: 'left', fontWeight: 'bolder', borderBottom: '1px solid #e0e0e0', marginLeft: '8px', marginTop: 0, height: 32, lineHeight: '32px' }}>
-              Tabs
             </Header>
             <Content style={{ margin: '24px 16px 0', overflow: 'visible' }}>
               <div style={{ padding: 24, background: '#fff', minHeight: 360, overflow: 'visible' }}>
