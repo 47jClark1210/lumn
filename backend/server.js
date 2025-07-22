@@ -1,33 +1,46 @@
 const express = require('express');
 const cors = require('cors');
+const logger = require('./utils/logger');
+const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+// CORS: Allow requests from frontend
+app.use(cors({
+  origin: 'http://localhost:3000', // React dev server
+  credentials: true
+})); 
+
 app.use(express.json());
 
-// Example route
+// Serve static files for avatars
+app.use('/uploads/avatars', express.static(path.join(__dirname, 'uploads/avatars')));
+
+// Health check route
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Backend is running!' });
 });
 
-// Mount API routes (add more in routes/)
-
+// Mount API routes
 const usersRoutes = require('./routes/users');
-const objectivesRoutes = require('./routes/objectives');
 const keyResultsRoutes = require('./routes/keyresults');
 const teamsRoutes = require('./routes/teams');
-const commentsRoutes = require('./routes/comments');
+const updatesRoutes = require('./routes/updates');
+const okrsRoutes = require('./routes/okrs');
+const authRoutes = require('./routes/auth');
+const searchRoutes = require('./routes/search');
 
 app.use('/api/users', usersRoutes);
-app.use('/api/objectives', objectivesRoutes);
 app.use('/api/keyresults', keyResultsRoutes);
 app.use('/api/teams', teamsRoutes);
-app.use('/api/comments', commentsRoutes);
+app.use('/api/updates', updatesRoutes);
+app.use('/api/okrs', okrsRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/search', searchRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack); // Log the error stack for debugging
+  logger.error(err.stack);
   const statusCode = err.status || 500;
   res.status(statusCode).json({
     error: {
@@ -37,5 +50,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  logger.info(`Server running on port ${PORT}`);
 });

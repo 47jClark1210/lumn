@@ -1,15 +1,18 @@
 {
   "name": "restapi1",
   "version": "1.0.0",
-  "description": "",
+  "description": "Backend API for Lumn OKR system",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "start:prod": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate": "node scripts/run-sql.js migrations",
+    "seed": "node scripts/run-sql.js seeds"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["express", "postgres", "okr", "api"],
+  "author": "Your Name",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
@@ -17,7 +20,9 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^5.1.0",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "winston": "^3.10.0"
   }
 }
