@@ -35,7 +35,7 @@ function Login({ onLoginSuccess }) {
           zIndex: -1
         }}
       >
-        <source src="/wave-background.mp4" type="video/mp4" />
+        <source src="/public/wave-background.mp4" type="video/mp4" />
       </video>
 
       {/* Login Content */}
