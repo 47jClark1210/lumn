@@ -357,7 +357,7 @@ function Learning() {
   const [assignUser, setAssignUser] = useState("");
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackDraft, setFeedbackDraft] = useState("");
-  const [isAdmin, setIsAdmin] = useState(true); // Simulate admin logic
+  const [isAdmin] = useState(true); // Simulate admin logic
   const [editMode, setEditMode] = useState(false);
   const [editDraft, setEditDraft] = useState({});
   const [showCreateModal, setShowCreateModal] = useState(false);
