@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { PieChartOutlined, ExperimentOutlined, StarOutlined, TeamOutlined, SolutionOutlined, SettingOutlined, UserOutlined, EditOutlined, UpOutlined, DownOutlined, SaveOutlined, RocketOutlined, ToolOutlined, PoweroffOutlined} from '@ant-design/icons';
 import Login from './Login.js';
+import ProfilePage from './ProfilePage.js';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -973,10 +974,10 @@ function Favorites() {
   return <h2>Favorites</h2>;
 }
 
-function ProfileMenu({ onLogout }) {
+function ProfileMenu({ onLogout, navigate }) {
   return (
     <Menu>
-      <Menu.Item key="profile">
+      <Menu.Item key="profile" onClick={() => navigate('/profile')}>
         <UserOutlined style={{ marginRight: 8 }} />
         Profile
       </Menu.Item>
@@ -1004,6 +1005,7 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login onLoginSuccess={() => navigate('/')} />} />
+      <Route path="/profile" element={<ProfilePage />} />
       <Route path="*" element={
         <Layout style={{ minHeight: '100vh' }}>
           <Sider
@@ -1100,7 +1102,11 @@ function App() {
                 style={{ width: 320 }}
                 onSearch={value => console.log(value)} // Replace with your search logic
               />
-              <Dropdown overlay={<ProfileMenu onLogout={handleLogout} />} placement="bottomRight" trigger={['click']}>
+              <Dropdown
+                overlay={<ProfileMenu onLogout={handleLogout} navigate={navigate} />}
+                placement="bottomRight"
+                trigger={['click']}
+              >
                 <Avatar icon={<UserOutlined style={{ color: '#00264d' }} />} style={{ backgroundColor: '#dcdee1ff', cursor: 'pointer' }} />
               </Dropdown>
             </Header>

@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Divider, message } from 'antd';
-import ProfileAvatar from './ProfileAvatar';
-import ProfileEditForm from './ProfileEditForm';
-import ChangePasswordForm from './ChangePasswordForm';
 
 function ProfilePage({ yourAuthToken }) {
   const [user, setUser] = useState({});
@@ -31,11 +28,11 @@ function ProfilePage({ yourAuthToken }) {
 
   return (
     <Card title="My Profile" style={{ maxWidth: 500, margin: '32px auto' }}>
-      <ProfileAvatar avatarUrl={avatarUrl} onUpload={handleAvatarUpload} />
+      {/* <ProfileAvatar avatarUrl={avatarUrl} onUpload={handleAvatarUpload} /> */}
       <Divider />
-      <ProfileEditForm user={user} onUpdate={handleProfileUpdate} />
+      {/* <ProfileEditForm user={user} onUpdate={handleProfileUpdate} /> */}
       <Divider />
-      <ChangePasswordForm />
+      {/* <ChangePasswordForm /> */}
     </Card>
   );
 }
