@@ -2,17 +2,16 @@
   "name": "lumn",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "description": "A modern web application built with React and Ant Design",
   "dependencies": {
     "@ant-design/icons": "5.x",
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^14.6.1",
     "antd": "^5.26.4",
-    "axios": "^1.10.0",
+    "axios": "1.3.6",
     "bcryptjs": "^3.0.2",
     "dayjs": "^1.11.13",
-    "eslint": "^9.30.1",
+    "eslint": "^8.57.0",
     "eslint-config-react-app": "^7.0.1",
     "multer": "^2.0.2",
     "node-fetch": "2",
@@ -20,7 +19,7 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-player": "^3.3.1",
-    "react-router-dom": "^7.6.3",
+    "react-router-dom": "^7.7.1",
     "react-scripts": "^5.0.1",
     "react-transition-group": "^4.4.5",
     "web-vitals": "^5.0.3"
@@ -28,13 +27,14 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "test": "node --test",
+    "eject": "react-scripts eject",
+    "test:babel": "node --test --loader @babel/register",
+    "lint": "eslint ."
   },
   "eslintConfig": {
     "extends": [
-      "react-app",
-      "react-app/jest"
+      "react-app"
     ]
   },
   "browserslist": {
@@ -50,5 +50,18 @@
     ]
   },
   "license": "MIT",
-  "proxy": "http://localhost:3001"
+  "proxy": "http://localhost:3001",
+  "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/preset-env": "^7.28.0",
+    "@babel/preset-react": "^7.27.1",
+    "@babel/register": "^7.27.1",
+    "@eslint/js": "^9.31.0",
+    "cypress": "^14.5.2",
+    "eslint-config-prettier": "npm:eslint-config-prettier@^9",
+    "eslint-plugin-prettier": "^5.5.3",
+    "eslint-plugin-react": "^7.37.5",
+    "msw": "^2.10.4",
+    "prettier": "^3.6.2"
+  }
 }

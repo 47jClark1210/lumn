@@ -1,0 +1,130 @@
+/* Analytics page styles */
+.analytics-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 16px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(20,24,75,0.08);
+}
+.analytics-header {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+
+.card-collapsed {
+  width: 100vw;
+  min-height: 70px;
+  height: 70px;
+  transition: height 0.3s;
+  overflow: hidden;
+  border-radius: 12px;
+  border: #707377 1.5px solid;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+@keyframes pulse-border-collapsed {
+  0% {
+    box-shadow: 0 0 0 0 #61dafb;
+    border-color: #707377;
+  }
+  50% {
+    box-shadow: 0 0 4px 2px #61dafb;
+    border-color: #61dafb;
+  }
+  100% {
+    box-shadow: 0 0 0 0 #61dafb;
+    border-color: #707377;
+  }
+}
+
+.card-collapsed:hover {
+  animation: pulse-border-collapsed 1.0s infinite;
+  border-color: #61dafb;
+}
+
+.card-expanded {
+  width: 100vw;
+  transition: height 0.3s;
+  border-radius: 12px;
+  border: #707377 1.5px solid;
+  position: relative;
+  transform: ease-in-out;
+  box-shadow: 3 3 10px rgba(0, 0, 0, 0.1);
+}
+
+.card-expanded:hover::after {
+  opacity: 1;
+  animation: pulse 0.8s;
+}
+
+@keyframes pulse-border-expanded {
+  0% {
+    box-shadow: 0 0 0 0 #61dafb;
+    border-color: #707377;
+  }
+  50% {
+    box-shadow: 0 0 4px 2px #61dafb;
+    border-color: #61dafb;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+    border-color: #707377;
+  }
+}
+
+.card-expanded:hover {
+  animation: pulse-border-expanded 1.0s infinite;
+  border-color: #61dafb;
+}
+
+.card-collapsed:hover, .card-expanded:hover {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  border-color: #1890ff;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.key-result-slide {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+.key-result-slide.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.objective-list {
+  width: 100%;
+}
+
+.analytics-card-anim-wrapper {
+  transition: transform 0.6s cubic-bezier(0.4,0,0.2,1), opacity 0.6s;
+  will-change: transform, opacity;
+}
+.analytics-card-anim-wrapper.expanded {
+  z-index: 2;
+}
+
+.key-result-slide {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+.key-result-slide.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ant-tag {
+  font-weight: 600;
+  border-radius: 8px;
+  margin-right: 8px;
+}
+
+.ant-progress-circle {
+  margin: 0 auto;
+}

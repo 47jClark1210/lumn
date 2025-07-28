@@ -1,0 +1,73 @@
+/* Learning & Development page styles */
+.learning-dev-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 16px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(20,24,75,0.08);
+}
+.learning-dev-header {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+
+.learning-page {
+  width: 100%;
+  margin: 0 auto;
+  padding-bottom: 32px;
+}
+.learning-header {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: #14184b;
+}
+.learning-container {
+  width: 100%;
+  margin: 0 auto;
+}
+.module-card, .module-card-loading, .module-card-empty {
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(20,24,75,0.10);
+  margin-bottom: 24px;
+  border: none;
+}
+.video-player-wrapper {
+  width: 100%;
+  margin: 0 0 16px 0;
+}
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.mentor-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.okr-info {
+  margin-bottom: 8px;
+}
+.switch-module-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.switch-module-btn {
+  min-width: 120px;
+}
+.create-module-btn, .save-btn, .cancel-btn, .assign-btn, .delete-btn, .edit-btn, .add-feedback-btn {
+  margin-right: 8px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.modal-title-input, .modal-description-input, .modal-video-input, .modal-assign-input, .modal-feedback-input {
+  margin-bottom: 12px;
+}
+

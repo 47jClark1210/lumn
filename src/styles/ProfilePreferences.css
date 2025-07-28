@@ -1,0 +1,48 @@
+/* ProfilePreferences page styles */
+.profile-preferences-card {
+  max-width: 500px;
+  margin: 32px auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(20,24,75,0.08);
+  background: #fff;
+  padding: 0;
+}
+.profile-avatar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.profile-edit-form {
+  margin-bottom: 16px;
+}
+.profile-divider {
+  margin: 16px 0;
+}
+.profile-error {
+  max-width: 500px;
+  margin: 32px auto;
+}
+.profile-spinner {
+  display: block;
+  margin: 64px auto;
+}
+.ant-card.profile-preferences-card {
+  max-width: 500px;
+  margin: 32px auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(20,24,75,0.08);
+  background: #fff;
+  padding: 0;
+}
+.ant-divider {
+  margin: 16px 0;
+}
+.ant-alert.profile-error {
+  max-width: 500px;
+  margin: 32px auto;
+}
+.ant-spin.profile-spinner {
+  display: block;
+  margin: 64px auto;
+}

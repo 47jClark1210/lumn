@@ -1,0 +1,60 @@
+/* Collaboration page styles */
+.collaboration-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 16px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(20,24,75,0.08);
+}
+.collaboration-header {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+
+.collaboration-card {
+  max-width: 700px;
+  margin: 0 auto 24px auto;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(20,24,75,0.10);
+  border: none;
+  padding: 0;
+}
+.collaboration-avatar {
+  box-shadow: 0 2px 8px rgba(20,24,75,0.10);
+}
+.collaboration-descriptions-title {
+  font-weight: 700;
+  font-size: 22px;
+  color: #14184b;
+}
+.collaboration-divider {
+  margin: 24px 0;
+}
+.collaboration-okr-title {
+  font-weight: 700;
+  color: #14184b;
+  margin-bottom: 16px;
+}
+.collaboration-list-item {
+  padding: 12px 0;
+}
+.collaboration-tag {
+  border-radius: 8px;
+  font-weight: 500;
+}
+.collaboration-tag-team {
+  font-weight: 600;
+  border-radius: 8px;
+}
+.collaboration-progress {
+  color: #1890ff;
+}
+.collaboration-popover {
+  z-index: 1000;
+}
+.collaboration-float-btn {
+  right: 24px;
+  bottom: 24px;
+}
