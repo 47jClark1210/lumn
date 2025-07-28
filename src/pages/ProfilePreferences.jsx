@@ -1,14 +1,14 @@
 import '../styles/ProfilePreferences.css';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { Card, Divider, message, Spin, Alert } from 'antd';
 import ProfileAvatar from '../components/ProfileAvatar';
 import ProfileEditForm from '../components/ProfileEditForm';
 import ChangePasswordForm from '../components/ChangePasswordForm';
-import { UserContext } from '../context/UserContext';
+import { useUser } from '../context/UserContext';
 import { updateProfile, uploadAvatar } from '../utils/api';
 
 function ProfilePreferences() {
-  const { user, refreshUser, loading, error } = useContext(UserContext);
+  const { user, refreshUser, loading, error } = useUser();
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [profileUpdating, setProfileUpdating] = useState(false);
 

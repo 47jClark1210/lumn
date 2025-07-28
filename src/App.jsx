@@ -15,9 +15,9 @@ import Analytics from './pages/Analytics.jsx';
 import Collaboration from './pages/Collaboration.jsx';
 import LearningAndDevelopment from './pages/Learning&Development.jsx';
 import Reporting from './pages/Reporting.jsx';
-import Favorites from './components/FavoritesDropdown.jsx';
 import ProfileMenu from './components/ProfileMenu.jsx';
 import { useUser } from './context/UserContext.jsx';
+import ProfilePreferences from './pages/ProfilePreferences.jsx';
 
 // If you use ReactPlayer elsewhere in the app, keep this import:
 // import ReactPlayer from 'react-player';
@@ -27,6 +27,7 @@ const { Header, Content, Footer, Sider } = Layout;
 function App() {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+  // Removed unused favoritesExpanded state
   const { user, logout: handleLogout } = useUser();
   return (
     <Routes>
@@ -145,8 +146,12 @@ function App() {
                 <Menu.Item key="reporting" icon={<SolutionOutlined />}>
                   <Link to="/reporting">Reporting</Link>
                 </Menu.Item>
-                <Menu.Item key="favorites" icon={<StarOutlined />}>
-                  <Link to="/favorites">Favorites</Link>
+                <Menu.Item
+                  key="favorites"
+                  icon={<StarOutlined />}
+                  style={{ userSelect: 'none' }}
+                >
+                  Favorites
                 </Menu.Item>
               </Menu>
             </Sider>
@@ -220,7 +225,10 @@ function App() {
                       path="/learning&development"
                       element={<LearningAndDevelopment />}
                     />
-                    <Route path="/favorites" element={<Favorites />} />
+                    <Route
+                      path="/ProfilePreferences"
+                      element={<ProfilePreferences />}
+                    />
                   </Routes>
                 </div>
               </Content>

@@ -1,4 +1,4 @@
-import { Dropdown, Menu, Avatar, Tag, Empty } from 'antd';
+import { Avatar, Empty } from 'antd';
 import { Link } from 'react-router-dom';
 import {
   StarOutlined,
@@ -9,7 +9,6 @@ import {
   AimOutlined,
 } from '@ant-design/icons';
 
-// Example favorite types: okr, report, user, team, settings, custom
 const iconMap = {
   okr: <AimOutlined />,
   report: <FileTextOutlined />,
@@ -20,54 +19,45 @@ const iconMap = {
 };
 
 function FavoritesDropdown({ favorites = [] }) {
-  const menu = (
-    <Menu>
-      {favorites.length === 0 ? (
-        <Menu.Item disabled key="empty">
-          <Empty
-            description="No favorites yet"
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-          />
-        </Menu.Item>
-      ) : (
-        favorites.map((fav) => (
-          <Menu.Item
-            key={fav.key || fav.id}
-            icon={iconMap[fav.type] || iconMap.default}
-          >
-            <Link
-              to={fav.route}
-              style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-            >
-              {fav.avatar && (
-                <Avatar src={fav.avatar} size={20} style={{ marginRight: 6 }} />
-              )}
-              <span>{fav.label}</span>
-              {fav.tag && (
-                <Tag color={fav.tagColor || 'blue'} style={{ marginLeft: 8 }}>
-                  {fav.tag}
-                </Tag>
-              )}
-            </Link>
-          </Menu.Item>
-        ))
-      )}
-    </Menu>
-  );
+  if (!favorites.length) {
+    return (
+      <div style={{ padding: '12px 16px', color: '#888' }}>
+        <Empty description="No favorites yet" />
+      </div>
+    );
+  }
 
   return (
-    <Dropdown overlay={menu} trigger={['click']} placement="bottomRight" arrow>
-      <span
-        style={{
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-        }}
-      >
-        <StarOutlined style={{ color: '#faad14', fontSize: 18 }} /> Favorites
-      </span>
-    </Dropdown>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 4,
+        padding: '8px 0',
+      }}
+    >
+      {favorites.map((fav) => (
+        <Link
+          key={fav.key || fav.id}
+          to={fav.route}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '6px 16px',
+            color: '#fff',
+            textDecoration: 'none',
+            borderRadius: 6,
+            transition: 'background 0.2s',
+          }}
+        >
+          {iconMap[fav.type] || iconMap.default}
+          {fav.avatar && (
+            <Avatar src={fav.avatar} size={20} style={{ marginRight: 6 }} />
+          )}
+        </Link>
+      ))}
+    </div>
   );
 }
 
