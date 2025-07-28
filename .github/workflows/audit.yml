@@ -1,0 +1,73 @@
+name: lumn Audit
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'yarn'
+
+    - name: Install dependencies with Yarn
+      run: yarn install --frozen-lockfile
+
+    - name: Run ESLint
+      run: yarn eslint . --ext .js,.jsx,.ts,.tsx
+
+    - name: Run Prettier check
+      run: yarn prettier --check .
+
+    - name: Run tests with coverage
+      run: yarn test --coverage
+
+    - name: Upload test coverage report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report-${{ matrix.node-version }}
+        path: coverage/
+
+    - name: Run Lighthouse CI
+      if: matrix.node-version == '18.x'
+      run: |
+        yarn global add @lhci/cli
+        lhci autorun || echo "Lighthouse CI failed"
+
+    - name: Upload Lighthouse report
+      if: matrix.node-version == '18.x'
+      uses: actions/upload-artifact@v3
+      with:
+        name: lighthouse-report
+        path: .lighthouseci/
+
+    - name: Audit dependencies
+      run: yarn audit --groups dependencies
+
+    - name: Check for unused dependencies
+      run: yarn dlx depcheck
+
+    - name: Build project
+      run: yarn build
+
+    - name: Deploy (placeholder)
+      if: matrix.node-version == '18.x'
+      run: echo "Deploy step goes here (e.g., Vercel CLI, Netlify CLI, etc.)"
+
+    - name: Notify on failure (placeholder)
+      if: failure()
+      run: echo "Send Slack or Teams notification here using webhook"
