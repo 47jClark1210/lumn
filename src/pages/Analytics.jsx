@@ -15,10 +15,11 @@ import {
   SaveOutlined,
   DownOutlined,
   UpOutlined,
+  StarFilled,
 } from '@ant-design/icons';
-import { generateObjective } from '../utils/helpers'; // Update this path after moving helpers
+import { generateObjective, getProgressGradient } from '../utils/helpers'; // Update this path after moving helpers
 
-function Analytics() {
+function Analytics({ onAddFavorite }) {
   const [objectives, setObjectives] = useState(
     Array.from({ length: 7 }).map((_, idx) => generateObjective(idx)),
   );
@@ -95,7 +96,8 @@ function Analytics() {
               }}
               styles={{
                 body: {
-                  padding: 32,
+                  padding:
+                    expandedIndex === cardIdx ? '12px 32px 32px 32px' : 32,
                   display: 'flex',
                   flexDirection: 'column',
                   flex: 1,
@@ -109,7 +111,6 @@ function Analytics() {
                 <div
                   style={{
                     flex: 1,
-                    display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
                   }}
@@ -124,8 +125,8 @@ function Analytics() {
                       fontSize: 11,
                       fontWeight: '700',
                       marginTop: 3,
+                      flexDirection: 'initial',
                       display: 'flex',
-                      alignItems: 'center',
                     }}
                   >
                     {editObjIndex === cardIdx ? (
@@ -255,12 +256,27 @@ function Analytics() {
                 >
                   <Tooltip
                     title={`${obj.objectiveSuccess}% done / ${obj.objectivePercent - obj.objectiveSuccess}% in progress`}
+                    overlayInnerStyle={{
+                      background: getProgressGradient(
+                        obj.objectiveSuccess,
+                        obj.objectivePercent,
+                      ),
+                      color: '#222',
+                      fontWeight: 500,
+                      fontSize: 13,
+                      border: '1px solid #bae7ff',
+                      boxShadow: '0 2px 8px rgba(24,144,255,0.10)',
+                      padding: '6px 14px',
+                      minWidth: 120,
+                      textAlign: 'center',
+                    }}
                   >
                     <Progress
                       percent={obj.objectivePercent}
                       success={{ percent: obj.objectiveSuccess }}
                       type="circle"
                       width={48}
+                      style={{ transform: 'translateX(-30px)' }}
                     />
                   </Tooltip>
                 </div>
@@ -276,6 +292,17 @@ function Analytics() {
                     setExpandedIndex(expandedIndex === cardIdx ? null : cardIdx)
                   }
                 >
+                  <Tooltip title="Add to favorites" color="#188fffff">
+                    <Button
+                      icon={<StarFilled style={{ color: '#a0a0a0ff' }} />}
+                      type="text"
+                      onClick={() => onAddFavorite(obj)}
+                      style={{
+                        marginLeft: 0,
+                        transform: 'translate(-55px, 0px)',
+                      }}
+                    />
+                  </Tooltip>
                   {expandedIndex === cardIdx ? (
                     <UpOutlined />
                   ) : (
@@ -285,7 +312,11 @@ function Analytics() {
               </Flex>
               {expandedIndex === cardIdx && (
                 <div
-                  style={{ borderBottom: '1px solid #e0e0e0', width: '100%' }}
+                  style={{
+                    borderBottom: '1px solid #e0e0e0',
+                    width: '100%',
+                    marginTop: 2,
+                  }}
                 />
               )}
               {expandedIndex === cardIdx &&
@@ -295,57 +326,106 @@ function Analytics() {
                     className={`key-result-slide${showKeyResults ? ' visible' : ''}`}
                     style={{ transitionDelay: `${idx * 80}ms` }}
                   >
-                    <Flex align="center" style={{ padding: '12px 0' }}>
-                      {editKRIndex.obj === cardIdx && editKRIndex.kr === idx ? (
-                        <>
-                          <Input
-                            value={editValue}
-                            onChange={(e) => setEditValue(e.target.value)}
-                            onPressEnter={() => handleSaveKR(cardIdx, idx)}
-                            size="small"
-                            style={{ flex: 1, marginRight: 8 }}
-                            autoFocus
-                          />
-                          <Button
-                            icon={<SaveOutlined />}
-                            type="link"
-                            size="small"
-                            onClick={() => handleSaveKR(cardIdx, idx)}
-                            style={{ marginRight: 12 }}
-                          />
-                        </>
-                      ) : (
-                        <>
-                          <span
+                    <Tooltip
+                      title={`${kr.success}% done / ${kr.percent - kr.success}% in progress`}
+                      overlayInnerStyle={{
+                        background: getProgressGradient(kr.success, kr.percent),
+                        color: '#222',
+                        fontWeight: 500,
+                        fontSize: 10,
+                        border: '1px solid #bae7ff',
+                        boxShadow: '0 2px 8px rgba(24,144,255,0.10)',
+                        padding: '6px 14px',
+                        minWidth: 120,
+                        textAlign: 'center',
+                      }}
+                    >
+                      <Flex align="center" style={{ padding: '12px 0' }}>
+                        {editKRIndex.obj === cardIdx &&
+                        editKRIndex.kr === idx ? (
+                          <>
+                            <Input
+                              value={editValue}
+                              onChange={(e) => setEditValue(e.target.value)}
+                              onPressEnter={() => handleSaveKR(cardIdx, idx)}
+                              size="small"
+                              style={{ flex: 1, marginRight: 8 }}
+                              autoFocus
+                            />
+                            <Button
+                              icon={<SaveOutlined />}
+                              type="link"
+                              size="small"
+                              onClick={() => handleSaveKR(cardIdx, idx)}
+                              style={{ marginRight: 12 }}
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <span
+                              style={{
+                                flex: 1,
+                                fontWeight: '400',
+                                fontSize: 15,
+                                marginRight: 8,
+                              }}
+                            >
+                              {kr.text}
+                            </span>
+                            <Button
+                              icon={<EditOutlined />}
+                              type="link"
+                              size="small"
+                              onClick={() => handleEditKR(cardIdx, idx)}
+                              style={{ marginRight: 12 }}
+                            />
+                            {/* Vertical divider */}
+                            <div
+                              style={{
+                                width: 1,
+                                height: 18,
+                                background: '#e0e0e0',
+                                margin: '0 12px',
+                                alignSelf: 'stretch',
+                                transform: 'translateX(-8px)',
+                              }}
+                            />
+                          </>
+                        )}
+                        <Tooltip
+                          title={`${kr.success}% done / ${kr.percent - kr.success}% in progress`}
+                          overlayInnerStyle={{
+                            background: getProgressGradient(
+                              kr.success,
+                              kr.percent,
+                            ),
+                            color: '#222',
+                            fontWeight: 500,
+                            fontSize: 10,
+                            border: '1px solid #bae7ff',
+                            boxShadow: '0 2px 8px rgba(24,144,255,0.10)',
+                            padding: '6px 14px',
+                            minWidth: 120,
+                            textAlign: 'center',
+                          }}
+                        >
+                          <div
                             style={{
-                              flex: 1,
-                              fontWeight: '400',
-                              fontSize: 15,
-                              marginRight: 8,
+                              flex: 2,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              minHeight: 20,
                             }}
                           >
-                            {kr.text}
-                          </span>
-                          <Button
-                            icon={<EditOutlined />}
-                            type="link"
-                            size="small"
-                            onClick={() => handleEditKR(cardIdx, idx)}
-                            style={{ marginRight: 12 }}
-                          />
-                        </>
-                      )}
-                      <Tooltip
-                        title={`${kr.success}% done / ${kr.percent - kr.success}% in progress`}
-                      >
-                        <div style={{ flex: 2 }}>
-                          <Progress
-                            percent={kr.percent}
-                            success={{ percent: kr.success }}
-                          />
-                        </div>
-                      </Tooltip>
-                    </Flex>
+                            <Progress
+                              percent={kr.percent}
+                              success={{ percent: kr.success }}
+                            />
+                          </div>
+                        </Tooltip>
+                      </Flex>
+                    </Tooltip>
                     {idx < obj.keyResults.length - 1 && (
                       <div
                         style={{

@@ -8,11 +8,12 @@ import {
   List,
   Popover,
   FloatButton,
+  Button,
 } from 'antd';
-import { TrophyOutlined } from '@ant-design/icons';
+import { TrophyOutlined, StarFilled } from '@ant-design/icons';
 import Leaderboard from '../components/Leaderboard';
 
-function Collaboration() {
+function Collaboration({ onAddFavorite }) {
   // Example user and OKR data (replace with your real data)
   const user = {
     name: 'Jane Doe',
@@ -24,6 +25,29 @@ function Collaboration() {
   const okrs = [
     { title: 'Improve User Engagement', status: 'Active', progress: 80 },
     { title: 'Launch New Feature', status: 'Completed', progress: 100 },
+  ];
+
+  // Example data
+  const users = [
+    {
+      id: 'u1',
+      name: 'Alice',
+      avatar: '/avatars/alice.png',
+      type: 'user',
+      route: '/user/u1',
+      label: 'Alice',
+    },
+    // ...other users
+  ];
+  const teams = [
+    {
+      id: 't1',
+      name: 'Team Rocket',
+      type: 'team',
+      route: '/team/t1',
+      label: 'Team Rocket',
+    },
+    // ...other teams
   ];
 
   return (
@@ -48,6 +72,20 @@ function Collaboration() {
             marginBottom: 24,
           }}
         >
+          <Button
+            icon={<StarFilled style={{ color: '#fadb14' }} />}
+            type="text"
+            onClick={() =>
+              onAddFavorite({
+                key: `user-${user.name}`,
+                type: 'user',
+                label: user.name,
+                route: `/user/${user.name}`,
+                avatar: user.avatar,
+              })
+            }
+            style={{ marginLeft: 8 }}
+          />
           <Avatar
             src={user.avatar}
             size={64}
@@ -105,6 +143,59 @@ function Collaboration() {
           )}
         />
       </Card>
+      <div>
+        <h2>Users</h2>
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+          {users.map((user) => (
+            <Card key={user.id} style={{ width: 220 }}>
+              <Card.Meta
+                avatar={<Avatar src={user.avatar} />}
+                title={user.name}
+              />
+              <Button
+                icon={<StarFilled style={{ color: '#fadb14' }} />}
+                type="text"
+                onClick={() =>
+                  onAddFavorite({
+                    key: `user-${user.id}`,
+                    type: 'user',
+                    label: user.name,
+                    route: `/user/${user.id}`,
+                    avatar: user.avatar,
+                  })
+                }
+                style={{ marginLeft: 8 }}
+              >
+                Add to Favorites
+              </Button>
+            </Card>
+          ))}
+        </div>
+
+        <h2 style={{ marginTop: 32 }}>Teams</h2>
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+          {teams.map((team) => (
+            <Card key={team.id} style={{ width: 220 }}>
+              <Card.Meta title={team.name} />
+              <Button
+                icon={<StarFilled style={{ color: '#fadb14' }} />}
+                type="text"
+                onClick={() =>
+                  onAddFavorite({
+                    key: `team-${team.id}`,
+                    type: 'team',
+                    label: team.name,
+                    route: `/team/${team.id}`,
+                  })
+                }
+                style={{ marginLeft: 8 }}
+              >
+                Add to Favorites
+              </Button>
+            </Card>
+          ))}
+        </div>
+      </div>
       <Popover
         content={<Leaderboard />}
         title="Leaderboard"

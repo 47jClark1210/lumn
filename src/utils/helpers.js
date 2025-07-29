@@ -58,3 +58,17 @@ export function generateObjective(idx) {
     keyResults: generateKeyResults(),
   };
 }
+
+export function getProgressGradient(success, percent) {
+  const green = Math.round(success);
+  const blue = Math.round(percent - success);
+  const gray = 100 - green - blue;
+  const greenColor = '#b7eb8f';
+  const blueColor = '#91d5ff';
+  const grayColor = '#f5f5f5';
+  let stops = [];
+  if (green > 0) stops.push(`${greenColor} 0%`, `${greenColor} ${green}%`);
+  if (blue > 0) stops.push(`${blueColor} ${green}%`, `${blueColor} ${green + blue}%`);
+  if (gray > 0) stops.push(`${grayColor} ${green + blue}%`, `${grayColor} 100%`);
+  return `linear-gradient(90deg, ${stops.join(', ')})`;
+}

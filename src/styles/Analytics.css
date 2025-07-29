@@ -28,15 +28,15 @@
 
 @keyframes pulse-border-collapsed {
   0% {
-    box-shadow: 0 0 0 0 #61dafb;
+    box-shadow: 0 0 0 0 #1890ff;
     border-color: #707377;
   }
   50% {
-    box-shadow: 0 0 4px 2px #61dafb;
-    border-color: #61dafb;
+    box-shadow: 0 0 4px 2px #1890ff;
+    border-color: #1890ff;
   }
   100% {
-    box-shadow: 0 0 0 0 #61dafb;
+    box-shadow: 0 0 0 0 #1890ff;
     border-color: #707377;
   }
 }
@@ -54,6 +54,7 @@
   position: relative;
   transform: ease-in-out;
   box-shadow: 3 3 10px rgba(0, 0, 0, 0.1);
+  padding: 0px
 }
 
 .card-expanded:hover::after {
@@ -67,8 +68,8 @@
     border-color: #707377;
   }
   50% {
-    box-shadow: 0 0 4px 2px #61dafb;
-    border-color: #61dafb;
+    box-shadow: 0 0 4px 2px #1890ff;
+    border-color: #1890ff;
   }
   100% {
     box-shadow: 0 0 0 0 transparent;
@@ -127,4 +128,11 @@
 
 .ant-progress-circle {
   margin: 0 auto;
+}
+
+/* Example: override Ant Design tooltip shadow */
+.ant-tooltip {
+  box-shadow: 0 0px 4px rgba(0, 0, 0, 0.438) !important;
+  border-radius: 6px;
+  font-size: 11px;
 }

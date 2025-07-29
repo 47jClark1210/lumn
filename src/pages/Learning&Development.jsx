@@ -1,11 +1,21 @@
 import '../styles/LearningAndDevelopment.css';
 import { useState, useEffect } from 'react';
-import { Button, Card, Divider, Input, List, Modal, Tag, Avatar } from 'antd';
+import {
+  Button,
+  Card,
+  Divider,
+  Input,
+  List,
+  Modal,
+  Tag,
+  Avatar,
+  Collapse,
+} from 'antd';
 import ReactPlayer from 'react-player';
 import Leaderboard from '../components/Leaderboard';
-import { Collapse } from 'antd';
+import { StarFilled } from '@ant-design/icons';
 
-function LearningAndDevelopment() {
+function LearningAndDevelopment({ onAddFavorite }) {
   // Learning & Development page with backend integration
   const [modules, setModules] = useState([]);
   const [activeModule, setActiveModule] = useState(null);
@@ -123,6 +133,21 @@ function LearningAndDevelopment() {
     const data = await res.json();
     setModules(data);
   };
+
+  // Example modules array
+  const exampleModules = [
+    {
+      id: 'mod1',
+      title: 'React Basics',
+      description: 'Learn React fundamentals.',
+    },
+    {
+      id: 'mod2',
+      title: 'Advanced JS',
+      description: 'Deep dive into JavaScript.',
+    },
+    // ...other modules
+  ];
 
   return (
     <div className="learning-page">
@@ -433,6 +458,31 @@ function LearningAndDevelopment() {
           placeholder="Write your feedback here..."
         />
       </Modal>
+      <div>
+        <h2>Learning Modules</h2>
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+          {exampleModules.map((mod) => (
+            <Card key={mod.id} title={mod.title} style={{ width: 260 }}>
+              <p>{mod.description}</p>
+              <Button
+                icon={<StarFilled style={{ color: '#fadb14' }} />}
+                type="text"
+                onClick={() =>
+                  onAddFavorite({
+                    key: `module-${mod.id}`,
+                    type: 'settings', // or another type if you prefer
+                    label: mod.title,
+                    route: `/learning&development/${mod.id}`,
+                  })
+                }
+                style={{ marginTop: 8 }}
+              >
+                Add to Favorites
+              </Button>
+            </Card>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

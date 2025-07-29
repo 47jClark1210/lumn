@@ -7,15 +7,18 @@ import {
   Avatar,
   Modal,
   Splitter,
+  Card,
 } from 'antd';
 import {
   EditOutlined,
   SaveOutlined,
   UpOutlined,
   DownOutlined,
+  StarFilled,
 } from '@ant-design/icons';
+import { getProgressGradient } from '../utils/helpers';
 
-function Reporting() {
+function Reporting({ onAddFavorite }) {
   // State hooks
   const [objectives, setObjectives] = useState([
     {
@@ -40,6 +43,21 @@ function Reporting() {
   // Feedback for summary (per objective)
   const [feedbackModalIdx, setFeedbackModalIdx] = useState(null);
   const [feedbackDraft, setFeedbackDraft] = useState('');
+
+  // Example reports array
+  const reports = [
+    {
+      id: 'r1',
+      title: 'Quarterly Financials',
+      description: 'Q1 2025 results.',
+    },
+    {
+      id: 'r2',
+      title: 'Project Status',
+      description: 'Current project updates.',
+    },
+    // ...other reports
+  ];
 
   // Utility: safely update objectives
   const updateObjectives = (updater) => {
@@ -153,6 +171,29 @@ function Reporting() {
   // Main render
   return (
     <div>
+      <h2>Reports</h2>
+      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+        {reports.map((report) => (
+          <Card key={report.id} title={report.title} style={{ width: 260 }}>
+            <p>{report.description}</p>
+            <Button
+              icon={<StarFilled style={{ color: '#fadb14' }} />}
+              type="text"
+              onClick={() =>
+                onAddFavorite({
+                  key: `report-${report.id}`,
+                  type: 'report',
+                  label: report.title,
+                  route: `/reporting/${report.id}`,
+                })
+              }
+              style={{ marginTop: 8 }}
+            >
+              Add to Favorites
+            </Button>
+          </Card>
+        ))}
+      </div>
       <Splitter
         layout="vertical"
         style={{
@@ -220,6 +261,20 @@ function Reporting() {
                 >
                   <Tooltip
                     title={`${obj.objectiveSuccess}% done / ${obj.objectivePercent - obj.objectiveSuccess}% in progress`}
+                    overlayInnerStyle={{
+                      background: getProgressGradient(
+                        obj.objectiveSuccess,
+                        obj.objectivePercent,
+                      ),
+                      color: '#222',
+                      fontWeight: 500,
+                      fontSize: 13,
+                      border: '1px solid #bae7ff',
+                      boxShadow: '0 2px 8px rgba(24,144,255,0.10)',
+                      padding: '6px 14px',
+                      minWidth: 120,
+                      textAlign: 'center',
+                    }}
                   >
                     <Progress
                       percent={obj.objectivePercent}

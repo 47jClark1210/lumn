@@ -18,6 +18,7 @@ import Reporting from './pages/Reporting.jsx';
 import ProfileMenu from './components/ProfileMenu.jsx';
 import { useUser } from './context/UserContext.jsx';
 import ProfilePreferences from './pages/ProfilePreferences.jsx';
+import FavoritesDropdown from './components/FavoritesDropdown';
 
 // If you use ReactPlayer elsewhere in the app, keep this import:
 // import ReactPlayer from 'react-player';
@@ -27,8 +28,18 @@ const { Header, Content, Footer, Sider } = Layout;
 function App() {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
-  // Removed unused favoritesExpanded state
+  const [favoritesExpanded, setFavoritesExpanded] = useState(false);
   const { user, logout: handleLogout } = useUser();
+  const [favorites, setFavorites] = useState([]);
+
+  function handleAddFavorite(item) {
+    setFavorites((prev) => {
+      // Prevent duplicates by key or id
+      if (prev.some((fav) => fav.key === item.key)) return prev;
+      return [...prev, item];
+    });
+  }
+
   return (
     <Routes>
       <Route
@@ -150,9 +161,18 @@ function App() {
                   key="favorites"
                   icon={<StarOutlined />}
                   style={{ userSelect: 'none' }}
+                  onClick={() => setFavoritesExpanded((prev) => !prev)}
                 >
                   Favorites
                 </Menu.Item>
+                {favoritesExpanded && (
+                  <div style={{ background: '#112244', paddingLeft: 32 }}>
+                    <FavoritesDropdown
+                      favorites={favorites}
+                      onLinkClick={() => setFavoritesExpanded(false)}
+                    />
+                  </div>
+                )}
               </Menu>
             </Sider>
             <Layout>
@@ -218,12 +238,27 @@ function App() {
                   }}
                 >
                   <Routes>
-                    <Route path="/" element={<Analytics />} />
-                    <Route path="/reporting" element={<Reporting />} />
-                    <Route path="/collaboration" element={<Collaboration />} />
+                    <Route
+                      path="/"
+                      element={<Analytics onAddFavorite={handleAddFavorite} />}
+                    />
+                    <Route
+                      path="/reporting"
+                      element={<Reporting onAddFavorite={handleAddFavorite} />}
+                    />
+                    <Route
+                      path="/collaboration"
+                      element={
+                        <Collaboration onAddFavorite={handleAddFavorite} />
+                      }
+                    />
                     <Route
                       path="/learning&development"
-                      element={<LearningAndDevelopment />}
+                      element={
+                        <LearningAndDevelopment
+                          onAddFavorite={handleAddFavorite}
+                        />
+                      }
                     />
                     <Route
                       path="/ProfilePreferences"

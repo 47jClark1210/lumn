@@ -18,11 +18,14 @@ const iconMap = {
   default: <StarOutlined />,
 };
 
-function FavoritesDropdown({ favorites = [] }) {
+function FavoritesDropdown({ favorites = [], onLinkClick }) {
   if (!favorites.length) {
     return (
       <div style={{ padding: '12px 16px', color: '#888' }}>
-        <Empty description="No favorites yet" />
+        <Empty
+          description="No favorites yet"
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+        />
       </div>
     );
   }
@@ -40,11 +43,12 @@ function FavoritesDropdown({ favorites = [] }) {
         <Link
           key={fav.key || fav.id}
           to={fav.route}
+          onClick={onLinkClick}
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: 8,
-            padding: '6px 16px',
+            padding: '6px 0',
             color: '#fff',
             textDecoration: 'none',
             borderRadius: 6,
@@ -55,6 +59,7 @@ function FavoritesDropdown({ favorites = [] }) {
           {fav.avatar && (
             <Avatar src={fav.avatar} size={20} style={{ marginRight: 6 }} />
           )}
+          <span>{fav.label}</span>
         </Link>
       ))}
     </div>
