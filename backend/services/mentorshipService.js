@@ -5,7 +5,7 @@ async function createMentorship({ mentorId, menteeId, startDate, endDate }) {
   const result = await db.query(
     `INSERT INTO mentorships (mentor_id, mentee_id, start_date, end_date, status)
      VALUES ($1, $2, $3, $4, 'active') RETURNING *`,
-    [mentorId, menteeId, startDate, endDate]
+    [mentorId, menteeId, startDate, endDate],
   );
   return result.rows[0];
 }
@@ -19,7 +19,7 @@ async function getUserMentorships(userId) {
      JOIN users mentee ON m.mentee_id = mentee.id
      WHERE m.mentor_id = $1 OR m.mentee_id = $1
      ORDER BY m.start_date DESC`,
-    [userId]
+    [userId],
   );
   return result.rows;
 }
@@ -28,7 +28,7 @@ async function getUserMentorships(userId) {
 async function endMentorship(id) {
   const result = await db.query(
     `UPDATE mentorships SET status = 'ended', end_date = NOW() WHERE id = $1 RETURNING *`,
-    [id]
+    [id],
   );
   return result.rows[0];
 }

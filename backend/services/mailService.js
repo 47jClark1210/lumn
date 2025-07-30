@@ -6,8 +6,8 @@ const transporter = nodemailer.createTransport({
   secure: false,
   auth: {
     user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
-  }
+    pass: process.env.SMTP_PASS,
+  },
 });
 
 async function sendMail({ to, subject, html }) {
@@ -15,11 +15,11 @@ async function sendMail({ to, subject, html }) {
     from: process.env.SMTP_FROM || '"Lumn" <no-reply@lumn.com>',
     to,
     subject,
-    html
+    html,
   };
   await transporter.sendMail(mailOptions);
 }
 
 module.exports = {
-  sendMail
+  sendMail,
 };

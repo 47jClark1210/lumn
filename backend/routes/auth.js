@@ -16,7 +16,7 @@ router.post('/reset-password-request', async (req, res) => {
 
     await db.query(
       'UPDATE users SET reset_token = $1, reset_token_expiry = $2 WHERE email = $3',
-      [token, expiry, email]
+      [token, expiry, email],
     );
 
     // Send email with reset link
@@ -38,10 +38,13 @@ router.post('/reset-password-request', async (req, res) => {
 router.post('/reset-password', async (req, res) => {
   try {
     const { token, newPassword } = req.body;
-    if (!token || !newPassword) return res.status(400).json({ error: 'Token and new password are required' });
+    if (!token || !newPassword)
+      return res
+        .status(400)
+        .json({ error: 'Token and new password are required' });
     const userResult = await db.query(
       'SELECT * FROM users WHERE reset_token = $1 AND reset_token_expiry > NOW()',
-      [token]
+      [token],
     );
     if (userResult.rows.length === 0) {
       return res.status(400).json({ error: 'Invalid or expired token' });
@@ -49,7 +52,7 @@ router.post('/reset-password', async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await db.query(
       'UPDATE users SET password = $1, reset_token = NULL, reset_token_expiry = NULL WHERE reset_token = $2',
-      [hashedPassword, token]
+      [hashedPassword, token],
     );
     res.json({ message: 'Password reset successful' });
   } catch (err) {
@@ -65,14 +68,14 @@ router.get('/verify-email', async (req, res) => {
     if (!token) return res.status(400).json({ error: 'Token is required' });
     const userResult = await db.query(
       'SELECT * FROM users WHERE verification_token = $1',
-      [token]
+      [token],
     );
     if (userResult.rows.length === 0) {
       return res.status(400).json({ error: 'Invalid token' });
     }
     await db.query(
       'UPDATE users SET email_verified = TRUE, verification_token = NULL WHERE verification_token = $1',
-      [token]
+      [token],
     );
     res.json({ message: 'Email verified successfully' });
   } catch (err) {
@@ -85,18 +88,19 @@ router.get('/verify-email', async (req, res) => {
 router.post('/register', async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
+    if (!email || !password)
+      return res.status(400).json({ error: 'Email and password are required' });
     const hashedPassword = await bcrypt.hash(password, 10);
-    await db.query(
-      'INSERT INTO users (email, password) VALUES ($1, $2)',
-      [email, hashedPassword]
-    );
+    await db.query('INSERT INTO users (email, password) VALUES ($1, $2)', [
+      email,
+      hashedPassword,
+    ]);
 
     // Generate email verification token
     const verificationToken = crypto.randomBytes(32).toString('hex');
     await db.query(
       'UPDATE users SET verification_token = $1 WHERE email = $2',
-      [verificationToken, email]
+      [verificationToken, email],
     );
     const verifyLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
     await sendMail({

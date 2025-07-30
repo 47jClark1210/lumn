@@ -18,7 +18,7 @@ router.get('/okr/:okrId', requireAuth, async (req, res) => {
   try {
     const result = await db.query(
       'SELECT * FROM key_results WHERE okr_id = $1 LIMIT $2 OFFSET $3',
-      [okrId, limit, offset]
+      [okrId, limit, offset],
     );
     res.json(result.rows);
   } catch (error) {
@@ -46,18 +46,19 @@ router.post(
     try {
       const result = await db.query(
         'INSERT INTO key_results (title, progress, okr_id) VALUES ($1, $2, $3) RETURNING *',
-        [title, progress, okrId]
+        [title, progress, okrId],
       );
       res.status(201).json(result.rows[0]);
     } catch (error) {
       logger.error(error);
-      if (error.code === '23503') { // Foreign key violation
+      if (error.code === '23503') {
+        // Foreign key violation
         res.status(400).json({ error: 'Invalid OKR ID reference' });
       } else {
         res.status(500).json({ error: 'Internal Server Error' });
       }
     }
-  }
+  },
 );
 
 // Update a key result (super_admin, org_admin, team_lead)
@@ -79,7 +80,7 @@ router.put(
     try {
       const result = await db.query(
         'UPDATE key_results SET title = $1, progress = $2 WHERE id = $3 RETURNING *',
-        [title, progress, id]
+        [title, progress, id],
       );
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'Key result not found' });
@@ -89,7 +90,7 @@ router.put(
       logger.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
-  }
+  },
 );
 
 // Delete a key result (super_admin, org_admin, team_lead)
@@ -105,7 +106,9 @@ router.delete(
     }
 
     try {
-      const result = await db.query('DELETE FROM key_results WHERE id = $1', [id]);
+      const result = await db.query('DELETE FROM key_results WHERE id = $1', [
+        id,
+      ]);
       if (result.rowCount === 0) {
         return res.status(404).json({ error: 'Key result not found' });
       }
@@ -114,7 +117,7 @@ router.delete(
       logger.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
-  }
+  },
 );
 
 module.exports = router;

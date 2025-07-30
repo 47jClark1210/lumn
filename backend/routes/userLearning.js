@@ -5,21 +5,35 @@ const requireRole = require('../middleware/requireRole');
 const userLearningService = require('../services/userLearningService');
 
 // Assign a learning module to a user (admin only)
-router.post('/assign', requireAuth, requireRole('admin', 'super_admin', 'org_admin'), async (req, res) => {
-  const { userId, moduleId, assignedBy, assignedDate } = req.body;
-  try {
-    const assignment = await userLearningService.assignModule({ userId, moduleId, assignedBy, assignedDate });
-    res.status(201).json(assignment);
-  } catch (err) {
-    res.status(500).json({ error: 'Server error' });
-  }
-});
+router.post(
+  '/assign',
+  requireAuth,
+  requireRole('admin', 'super_admin', 'org_admin'),
+  async (req, res) => {
+    const { userId, moduleId, assignedBy, assignedDate } = req.body;
+    try {
+      const assignment = await userLearningService.assignModule({
+        userId,
+        moduleId,
+        assignedBy,
+        assignedDate,
+      });
+      res.status(201).json(assignment);
+    } catch (err) {
+      res.status(500).json({ error: 'Server error' });
+    }
+  },
+);
 
 // Mark a module as completed by a user
 router.put('/complete', requireAuth, async (req, res) => {
   const { userId, moduleId, completedDate } = req.body;
   try {
-    const completion = await userLearningService.completeModule({ userId, moduleId, completedDate });
+    const completion = await userLearningService.completeModule({
+      userId,
+      moduleId,
+      completedDate,
+    });
     res.json(completion);
   } catch (err) {
     res.status(500).json({ error: 'Server error' });

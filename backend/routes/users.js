@@ -7,6 +7,8 @@ const requireRole = require('../middleware/requireRole');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const path = require('path');
+const { fileURLToPath } = require('url');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Configure Multer for avatar uploads
 const storage = multer.diskStorage({
@@ -14,8 +16,11 @@ const storage = multer.diskStorage({
     cb(null, path.join(__dirname, '../uploads/avatars'));
   },
   filename: (req, file, cb) => {
-    cb(null, `user_${req.user.id}_${Date.now()}${path.extname(file.originalname)}`);
-  }
+    cb(
+      null,
+      `user_${req.user.id}_${Date.now()}${path.extname(file.originalname)}`,
+    );
+  },
 });
 const upload = multer({ storage });
 
@@ -45,7 +50,7 @@ router.post(
       const hashedPassword = await bcrypt.hash(password, 10);
       const result = await db.query(
         'INSERT INTO users (name, email, role_id, team_id, password) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-        [name, email, role_id, team_id, hashedPassword]
+        [name, email, role_id, team_id, hashedPassword],
       );
       res.status(201).json(result.rows[0]);
       logger.info(`Created user: ${name}`);
@@ -53,7 +58,7 @@ router.post(
       logger.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
-  }
+  },
 );
 
 // Update user (super_admin or org_admin only)
@@ -70,7 +75,7 @@ router.put(
     try {
       const result = await db.query(
         'UPDATE users SET name = $1, email = $2, role_id = $3, team_id = $4 WHERE id = $5 RETURNING *',
-        [name, email, role_id, team_id, userId]
+        [name, email, role_id, team_id, userId],
       );
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'User not found' });
@@ -81,7 +86,7 @@ router.put(
       logger.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
-  }
+  },
 );
 
 // Delete user (super_admin only)
@@ -92,7 +97,9 @@ router.delete(
   async (req, res) => {
     const userId = req.params.id;
     try {
-      const result = await db.query('DELETE FROM users WHERE id = $1', [userId]);
+      const result = await db.query('DELETE FROM users WHERE id = $1', [
+        userId,
+      ]);
       if (result.rowCount === 0) {
         res.status(404).json({ error: 'User not found' });
       } else {
@@ -103,7 +110,7 @@ router.delete(
       logger.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
-  }
+  },
 );
 
 // Get current user's profile
@@ -112,7 +119,7 @@ router.get('/me', requireAuth, async (req, res) => {
   try {
     const result = await db.query(
       'SELECT id, name, email, role_id, team_id FROM users WHERE id = $1',
-      [userId]
+      [userId],
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
@@ -135,15 +142,24 @@ router.put('/me', requireAuth, async (req, res) => {
   const fields = [];
   const values = [];
   let idx = 1;
-  if (name) { fields.push(`name = $${idx++}`); values.push(name); }
-  if (email) { fields.push(`email = $${idx++}`); values.push(email); }
-  if (team_id) { fields.push(`team_id = $${idx++}`); values.push(team_id); }
+  if (name) {
+    fields.push(`name = $${idx++}`);
+    values.push(name);
+  }
+  if (email) {
+    fields.push(`email = $${idx++}`);
+    values.push(email);
+  }
+  if (team_id) {
+    fields.push(`team_id = $${idx++}`);
+    values.push(team_id);
+  }
   values.push(userId);
 
   try {
     const result = await db.query(
       `UPDATE users SET ${fields.join(', ')} WHERE id = $${idx} RETURNING id, name, email, role_id, team_id`,
-      values
+      values,
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
@@ -156,17 +172,25 @@ router.put('/me', requireAuth, async (req, res) => {
 });
 
 // Avatar upload endpoint
-router.post('/me/avatar', requireAuth, upload.single('avatar'), async (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  const avatarUrl = `/uploads/avatars/${req.file.filename}`;
-  try {
-    await db.query('UPDATE users SET avatar_url = $1 WHERE id = $2', [avatarUrl, req.user.id]);
-    res.json({ avatar_url: avatarUrl });
-  } catch (err) {
-    logger.error('Error uploading avatar:', err);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
+router.post(
+  '/me/avatar',
+  requireAuth,
+  upload.single('avatar'),
+  async (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+    try {
+      await db.query('UPDATE users SET avatar_url = $1 WHERE id = $2', [
+        avatarUrl,
+        req.user.id,
+      ]);
+      res.json({ avatar_url: avatarUrl });
+    } catch (err) {
+      logger.error('Error uploading avatar:', err);
+      res.status(500).json({ error: 'Server error' });
+    }
+  },
+);
 
 // Change password
 router.post('/me/change-password', requireAuth, async (req, res) => {
@@ -175,16 +199,25 @@ router.post('/me/change-password', requireAuth, async (req, res) => {
     return res.status(400).json({ error: 'Old and new password are required' });
   }
   try {
-    const userResult = await db.query('SELECT password FROM users WHERE id = $1', [req.user.id]);
+    const userResult = await db.query(
+      'SELECT password FROM users WHERE id = $1',
+      [req.user.id],
+    );
     if (userResult.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
-    const valid = await bcrypt.compare(oldPassword, userResult.rows[0].password);
+    const valid = await bcrypt.compare(
+      oldPassword,
+      userResult.rows[0].password,
+    );
     if (!valid) {
       return res.status(400).json({ error: 'Old password is incorrect' });
     }
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await db.query('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, req.user.id]);
+    await db.query('UPDATE users SET password = $1 WHERE id = $2', [
+      hashedPassword,
+      req.user.id,
+    ]);
     res.json({ message: 'Password changed successfully' });
   } catch (err) {
     logger.error('Error changing password:', err);

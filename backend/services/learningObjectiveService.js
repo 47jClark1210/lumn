@@ -26,34 +26,51 @@ async function getObjectives({ userId, teamId, okrId }) {
 
 // Get a single learning objective by ID
 async function getObjectiveById(id) {
-  const result = await db.query('SELECT * FROM learning_objectives WHERE id = $1', [id]);
+  const result = await db.query(
+    'SELECT * FROM learning_objectives WHERE id = $1',
+    [id],
+  );
   return result.rows[0];
 }
 
 // Create a new learning objective
-async function createObjective({ user_id, okr_id, team_id, title, description, start_date, end_date }) {
+async function createObjective({
+  user_id,
+  okr_id,
+  team_id,
+  title,
+  description,
+  start_date,
+  end_date,
+}) {
   const result = await db.query(
     `INSERT INTO learning_objectives (user_id, okr_id, team_id, title, description, start_date, end_date)
      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-    [user_id, okr_id, team_id, title, description, start_date, end_date]
+    [user_id, okr_id, team_id, title, description, start_date, end_date],
   );
   return result.rows[0];
 }
 
 // Update a learning objective
-async function updateObjective(id, { title, description, start_date, end_date, status }) {
+async function updateObjective(
+  id,
+  { title, description, start_date, end_date, status },
+) {
   const result = await db.query(
     `UPDATE learning_objectives
      SET title = $1, description = $2, start_date = $3, end_date = $4, status = $5
      WHERE id = $6 RETURNING *`,
-    [title, description, start_date, end_date, status, id]
+    [title, description, start_date, end_date, status, id],
   );
   return result.rows[0];
 }
 
 // Delete a learning objective
 async function deleteObjective(id) {
-  const result = await db.query('DELETE FROM learning_objectives WHERE id = $1', [id]);
+  const result = await db.query(
+    'DELETE FROM learning_objectives WHERE id = $1',
+    [id],
+  );
   return result.rowCount;
 }
 
@@ -62,5 +79,5 @@ module.exports = {
   getObjectiveById,
   createObjective,
   updateObjective,
-  deleteObjective
+  deleteObjective,
 };

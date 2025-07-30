@@ -9,7 +9,7 @@ async function getTeamLeaderboard(teamId) {
      WHERE u.team_id = $1
      GROUP BY u.id, u.name
      ORDER BY completed_modules DESC`,
-    [teamId]
+    [teamId],
   );
   return result.rows;
 }
@@ -22,12 +22,12 @@ async function getGlobalLeaderboard() {
      LEFT JOIN users u ON u.team_id = t.id
      LEFT JOIN user_learning ul ON ul.user_id = u.id AND ul.status = 'completed'
      GROUP BY t.id, t.name
-     ORDER BY completed_modules DESC`
+     ORDER BY completed_modules DESC`,
   );
   return result.rows;
 }
 
 module.exports = {
   getTeamLeaderboard,
-  getGlobalLeaderboard
+  getGlobalLeaderboard,
 };

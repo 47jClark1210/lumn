@@ -16,15 +16,20 @@ router.get('/okr/:okrId/updates', requireAuth, async (req, res) => {
 });
 
 // Get update summary for a team
-router.get('/team/:teamId/updates-summary', requireAuth, requireRole('super_admin', 'org_admin'), async (req, res) => {
-  const { teamId } = req.params;
-  try {
-    const summary = await reportService.getTeamUpdatesReport(teamId);
-    res.json(summary);
-  } catch (err) {
-    res.status(500).json({ error: 'Server error' });
-  }
-});
+router.get(
+  '/team/:teamId/updates-summary',
+  requireAuth,
+  requireRole('super_admin', 'org_admin'),
+  async (req, res) => {
+    const { teamId } = req.params;
+    try {
+      const summary = await reportService.getTeamUpdatesReport(teamId);
+      res.json(summary);
+    } catch (err) {
+      res.status(500).json({ error: 'Server error' });
+    }
+  },
+);
 
 // ...existing endpoints...
 

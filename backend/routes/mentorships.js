@@ -7,7 +7,12 @@ const mentorshipService = require('../services/mentorshipService');
 router.post('/', requireAuth, async (req, res) => {
   const { mentorId, menteeId, startDate, endDate } = req.body;
   try {
-    const mentorship = await mentorshipService.createMentorship({ mentorId, menteeId, startDate, endDate });
+    const mentorship = await mentorshipService.createMentorship({
+      mentorId,
+      menteeId,
+      startDate,
+      endDate,
+    });
     res.status(201).json(mentorship);
   } catch (err) {
     res.status(500).json({ error: 'Server error' });

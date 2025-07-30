@@ -8,7 +8,12 @@ router.post('/', requireAuth, async (req, res) => {
   const { moduleId, comment, rating } = req.body;
   const userId = req.user.id;
   try {
-    const feedback = await feedbackService.addFeedback({ userId, moduleId, comment, rating });
+    const feedback = await feedbackService.addFeedback({
+      userId,
+      moduleId,
+      comment,
+      rating,
+    });
     res.status(201).json(feedback);
   } catch (err) {
     res.status(500).json({ error: 'Server error' });

@@ -18,25 +18,25 @@ router.get('/', requireAuth, async (req, res) => {
       case 'org_admin':
         result = await db.query(
           'SELECT * FROM view_okrs_org_admin WHERE org_id = (SELECT org_id FROM users WHERE id = $1)',
-          [userId]
+          [userId],
         );
         break;
       case 'team_lead':
         result = await db.query(
           'SELECT * FROM view_okrs_team_lead WHERE team_id = (SELECT team_id FROM users WHERE id = $1)',
-          [userId]
+          [userId],
         );
         break;
       case 'contributor':
         result = await db.query(
           'SELECT * FROM view_okrs_contributor WHERE owner_id = $1',
-          [userId]
+          [userId],
         );
         break;
       case 'viewer':
         result = await db.query(
           'SELECT * FROM view_okrs_viewer WHERE team_id = (SELECT team_id FROM users WHERE id = $1)',
-          [userId]
+          [userId],
         );
         break;
       default:
@@ -63,7 +63,14 @@ router.post(
     try {
       const result = await db.query(
         'INSERT INTO okrs (title, description, owner_id, team_id, org_id, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-        [title, description || '', owner_id, team_id, org_id, status || 'Active']
+        [
+          title,
+          description || '',
+          owner_id,
+          team_id,
+          org_id,
+          status || 'Active',
+        ],
       );
       res.status(201).json(result.rows[0]);
       logger.info(`Created OKR: ${title}`);
@@ -71,7 +78,7 @@ router.post(
       logger.error('Error creating OKR:', err);
       res.status(500).json({ error: 'Server error' });
     }
-  }
+  },
 );
 
 // Update an OKR (super_admin, org_admin, team_lead)
@@ -88,7 +95,15 @@ router.put(
     try {
       const result = await db.query(
         'UPDATE okrs SET title = $1, description = $2, owner_id = $3, team_id = $4, org_id = $5, status = $6 WHERE id = $7 RETURNING *',
-        [title, description || '', owner_id, team_id, org_id, status || 'Active', id]
+        [
+          title,
+          description || '',
+          owner_id,
+          team_id,
+          org_id,
+          status || 'Active',
+          id,
+        ],
       );
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'OKR not found' });
@@ -99,7 +114,7 @@ router.put(
       logger.error('Error updating OKR:', err);
       res.status(500).json({ error: 'Server error' });
     }
-  }
+  },
 );
 
 // Delete an OKR (super_admin, org_admin)
@@ -123,7 +138,7 @@ router.delete(
       logger.error('Error deleting OKR:', err);
       res.status(500).json({ error: 'Server error' });
     }
-  }
+  },
 );
 
 module.exports = router;

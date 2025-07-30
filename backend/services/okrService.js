@@ -8,7 +8,7 @@ async function getAllOKRs() {
 async function createOKR({ title, description }) {
   const result = await db.query(
     'INSERT INTO okrs (title, description) VALUES ($1, $2) RETURNING *',
-    [title, description || null]
+    [title, description || null],
   );
   return result.rows[0];
 }
@@ -16,7 +16,7 @@ async function createOKR({ title, description }) {
 async function updateOKR(id, { title, description }) {
   const result = await db.query(
     'UPDATE okrs SET title = $1, description = $2 WHERE id = $3 RETURNING *',
-    [title, description || null, id]
+    [title, description || null, id],
   );
   return result.rows[0];
 }
@@ -30,5 +30,5 @@ module.exports = {
   getAllOKRs,
   createOKR,
   updateOKR,
-  deleteOKR
+  deleteOKR,
 };
