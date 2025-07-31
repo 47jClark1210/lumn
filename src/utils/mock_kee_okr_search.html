@@ -1,0 +1,157 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>KEE - AI OKR Search</title>
+<style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        h1 { color: #333; }
+        .search-container { margin-bottom: 20px; position: relative; }
+        .results { margin-top: 20px; }
+        .okr-card { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .predictive-modal {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 60px;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 10;
+            padding: 10px;
+        }
+        .modal-okr-card {
+            border-bottom: 1px solid #eee;
+            padding: 8px 0;
+        }
+        .modal-okr-card:last-child {
+            border-bottom: none;
+        }
+        .modal-filters {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: flex-end;
+        }
+        .modal-filters select {
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+<h1>Mock KEE OKR Search Interface</h1>
+<div class="search-container">
+<input id="keyword" placeholder="Search OKRs by keyword" type="text" autocomplete="off"/>
+<button onclick="searchOKRs()">Search</button>
+</div>
+<div id="predictive-modal" class="predictive-modal" style="display:none;"></div>
+</div>
+<div class="results" id="results"></div>
+<script>
+        const okrs = [
+            { objective: "Improve website performance", department: "Engineering", owner: "Alice" },
+            { objective: "Launch new marketing campaign", department: "Marketing", owner: "Bob" },
+            { objective: "Enhance employee onboarding", department: "HR", owner: "Charlie" },
+            { objective: "Refactor backend services", department: "Engineering", owner: "Alice" },
+            { objective: "Increase social media engagement", department: "Marketing", owner: "Bob" }
+        ];
+
+        let modalDepartment = "";
+        let modalOwner = "";
+
+        function filterOKRs(keyword, department, owner) {
+            keyword = keyword.toLowerCase();
+            return okrs.filter(okr => {
+                return (!keyword || okr.objective.toLowerCase().includes(keyword)) &&
+                       (!department || okr.department === department) &&
+                       (!owner || okr.owner === owner);
+            });
+        }
+
+        function showPredictiveModal() {
+            const keyword = document.getElementById("keyword").value;
+            if (!keyword) {
+                hidePredictiveModal();
+                return;
+            }
+            const modal = document.getElementById("predictive-modal");
+            modal.style.display = "block";
+            const filtered = filterOKRs(keyword, modalDepartment, modalOwner);
+            let html = "";
+            if (filtered.length === 0) {
+                html += `<div class='modal-okr-card'>No OKRs found.</div>`;
+            } else {
+                filtered.forEach(okr => {
+                    html += `<div class='modal-okr-card'><strong>Objective:</strong> ${okr.objective}<br>
+                        <strong>Department:</strong> ${okr.department}<br>
+                        <strong>Owner:</strong> ${okr.owner}</div>`;
+                });
+            }
+            html += `<div class='modal-filters'>
+                <select id='modal-department'>
+                    <option value=''>All Departments</option>
+                    <option value='Engineering' ${modalDepartment==='Engineering'?'selected':''}>Engineering</option>
+                    <option value='Marketing' ${modalDepartment==='Marketing'?'selected':''}>Marketing</option>
+                    <option value='HR' ${modalDepartment==='HR'?'selected':''}>HR</option>
+                </select>
+                <select id='modal-owner'>
+                    <option value=''>All Owners</option>
+                    <option value='Alice' ${modalOwner==='Alice'?'selected':''}>Alice</option>
+                    <option value='Bob' ${modalOwner==='Bob'?'selected':''}>Bob</option>
+                    <option value='Charlie' ${modalOwner==='Charlie'?'selected':''}>Charlie</option>
+                </select>
+            </div>`;
+            modal.innerHTML = html;
+
+            // Add event listeners for filter selects
+            document.getElementById('modal-department').onchange = function(e) {
+                modalDepartment = e.target.value;
+                showPredictiveModal();
+            };
+            document.getElementById('modal-owner').onchange = function(e) {
+                modalOwner = e.target.value;
+                showPredictiveModal();
+            };
+        }
+
+        function hidePredictiveModal() {
+            const modal = document.getElementById("predictive-modal");
+            modal.style.display = "none";
+        }
+
+        document.getElementById("keyword").addEventListener("input", showPredictiveModal);
+        document.addEventListener("click", function(e) {
+            const modal = document.getElementById("predictive-modal");
+            const input = document.getElementById("keyword");
+            if (!modal.contains(e.target) && e.target !== input) {
+                hidePredictiveModal();
+            }
+        });
+
+        function searchOKRs() {
+            const keyword = document.getElementById("keyword").value.toLowerCase();
+            const department = modalDepartment;
+            const owner = modalOwner;
+            const filtered = filterOKRs(keyword, department, owner);
+            const resultsDiv = document.getElementById("results");
+            resultsDiv.innerHTML = "";
+            if (filtered.length === 0) {
+                resultsDiv.innerHTML = "<p>No OKRs found.</p>";
+                return;
+            }
+            filtered.forEach(okr => {
+                const card = document.createElement("div");
+                card.className = "okr-card";
+                card.innerHTML = `<strong>Objective:</strong> ${okr.objective}<br>
+                                  <strong>Department:</strong> ${okr.department}<br>
+                                  <strong>Owner:</strong> ${okr.owner}`;
+                resultsDiv.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>

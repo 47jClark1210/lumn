@@ -1,5 +1,5 @@
 import './styles/App.css';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Layout, Menu, Input, Avatar, Popover } from 'antd';
 import {
   PieChartOutlined,
@@ -191,11 +191,15 @@ function App() {
                   alignItems: 'center',
                 }}
               >
-                <Input.Search
+                <AISearchBar
                   placeholder="Search objectives, key results, teams..."
                   allowClear
-                  style={{ width: 320, paddingBottom: 1, paddingTop: 1 }}
-                  onSearch={(value) => console.log(value)} // Replace with your search logic
+                  style={{
+                    width: 320,
+                    paddingBottom: 1,
+                    paddingTop: 1,
+                    borderRadius: 32,
+                  }}
                 />
                 <Popover
                   content={<ProfileMenu user={user} onLogout={handleLogout} />}
@@ -279,3 +283,133 @@ function App() {
 }
 
 export default App;
+
+function AISearchBar() {
+  const [okrs, setOkrs] = useState([]);
+  useEffect(() => {
+    async function fetchRandomOKRs() {
+      try {
+        // Fetch random OKRs from backend search API
+        const res = await fetch('/api/search?random=1');
+        const data = await res.json();
+        // Expecting array of OKRs: [{ objective, department, owner }]
+        setOkrs(Array.isArray(data) ? data : []);
+      } catch (err) {
+        setOkrs([]);
+      }
+    }
+    fetchRandomOKRs();
+  }, []);
+  const styles = {
+    container: { position: 'relative', width: 320 },
+    modal: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      top: 38,
+      background: '#fff',
+      border: '1px solid #ccc',
+      borderRadius: 8,
+      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+      zIndex: 100,
+      padding: 10,
+    },
+    modalOkrCard: { borderBottom: '1px solid #eee', padding: '8px 0' },
+    modalFilters: {
+      display: 'flex',
+      gap: 10,
+      marginTop: 10,
+      justifyContent: 'flex-end',
+    },
+    modalSelect: {
+      padding: '4px 8px',
+      borderRadius: 4,
+      border: '1px solid #ccc',
+    },
+  };
+  const [keyword, setKeyword] = useState('');
+  const [modalDepartment, setModalDepartment] = useState('');
+  const [modalOwner, setModalOwner] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const inputRef = useRef();
+  const modalRef = useRef();
+  function filterOKRs(keyword, department, owner) {
+    keyword = keyword.toLowerCase();
+    return okrs.filter((okr) => {
+      return (
+        (!keyword || okr.objective.toLowerCase().includes(keyword)) &&
+        (!department || okr.department === department) &&
+        (!owner || okr.owner === owner)
+      );
+    });
+  }
+  useEffect(() => {
+    function handleClick(e) {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(e.target) &&
+        inputRef.current !== e.target
+      ) {
+        setShowModal(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+  useEffect(() => {
+    if (keyword) setShowModal(true);
+    else setShowModal(false);
+  }, [keyword]);
+  const predictiveResults = filterOKRs(keyword, modalDepartment, modalOwner);
+  return (
+    <div style={styles.container}>
+      <Input
+        ref={inputRef}
+        placeholder="Search OKRs by keyword"
+        value={keyword}
+        allowClear
+        onChange={(e) => setKeyword(e.target.value)}
+        style={{ width: '100%' }}
+      />
+      {showModal && (
+        <div ref={modalRef} style={styles.modal}>
+          {predictiveResults.length === 0 ? (
+            <div style={styles.modalOkrCard}>No OKRs found.</div>
+          ) : (
+            predictiveResults.map((okr, idx) => (
+              <div key={idx} style={styles.modalOkrCard}>
+                <strong>Objective:</strong> {okr.objective}
+                <br />
+                <strong>Department:</strong> {okr.department}
+                <br />
+                <strong>Owner:</strong> {okr.owner}
+              </div>
+            ))
+          )}
+          <div style={styles.modalFilters}>
+            <select
+              style={styles.modalSelect}
+              value={modalDepartment}
+              onChange={(e) => setModalDepartment(e.target.value)}
+            >
+              <option value="">All Departments</option>
+              <option value="Engineering">Engineering</option>
+              <option value="Marketing">Marketing</option>
+              <option value="HR">HR</option>
+            </select>
+            <select
+              style={styles.modalSelect}
+              value={modalOwner}
+              onChange={(e) => setModalOwner(e.target.value)}
+            >
+              <option value="">All Owners</option>
+              <option value="Alice">Alice</option>
+              <option value="Bob">Bob</option>
+              <option value="Charlie">Charlie</option>
+            </select>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
