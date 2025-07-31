@@ -32,7 +32,7 @@ router.post(
     try {
       const result = await db.query(
         'INSERT INTO teams (name, org_id) VALUES ($1, $2) RETURNING *',
-        [name, org_id || null]
+        [name, org_id || null],
       );
       res.status(201).json(result.rows[0]);
       logger.info(`Created new team: ${name}`);
@@ -45,7 +45,7 @@ router.post(
         res.status(500).json({ error: 'Internal Server Error' });
       }
     }
-  }
+  },
 );
 
 // Update a team (super_admin or org_admin only)
@@ -67,7 +67,7 @@ router.put(
     try {
       const result = await db.query(
         'UPDATE teams SET name = $1, org_id = $2 WHERE id = $3 RETURNING *',
-        [name, org_id || null, id]
+        [name, org_id || null, id],
       );
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'Team not found' });
@@ -78,7 +78,7 @@ router.put(
       logger.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
-  }
+  },
 );
 
 // Delete a team (super_admin only)
@@ -104,7 +104,7 @@ router.delete(
       logger.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
-  }
+  },
 );
 
 module.exports = router;

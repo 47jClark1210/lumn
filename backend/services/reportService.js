@@ -8,7 +8,7 @@ async function getOkrUpdatesReport(okrId) {
      JOIN users us ON u.author_id = us.id
      WHERE u.okr_id = $1
      ORDER BY u.date DESC`,
-    [okrId]
+    [okrId],
   );
   return result.rows;
 }
@@ -22,7 +22,7 @@ async function getTeamUpdatesReport(teamId) {
      LEFT JOIN updates u ON u.author_id = us.id
      WHERE t.id = $1
      GROUP BY t.name`,
-    [teamId]
+    [teamId],
   );
   return result.rows[0];
 }

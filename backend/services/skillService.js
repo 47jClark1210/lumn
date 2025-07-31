@@ -10,7 +10,7 @@ async function getAllSkills() {
 async function addSkill({ name, description }) {
   const result = await db.query(
     'INSERT INTO skills (name, description) VALUES ($1, $2) RETURNING *',
-    [name, description]
+    [name, description],
   );
   return result.rows[0];
 }
@@ -19,7 +19,7 @@ async function addSkill({ name, description }) {
 async function updateSkill(id, { name, description }) {
   const result = await db.query(
     'UPDATE skills SET name = $1, description = $2 WHERE id = $3 RETURNING *',
-    [name, description, id]
+    [name, description, id],
   );
   return result.rows[0];
 }
@@ -34,5 +34,5 @@ module.exports = {
   getAllSkills,
   addSkill,
   updateSkill,
-  deleteSkill
+  deleteSkill,
 };

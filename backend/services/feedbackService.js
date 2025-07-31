@@ -5,7 +5,7 @@ async function addFeedback({ userId, moduleId, comment, rating }) {
   const result = await db.query(
     `INSERT INTO learning_feedback (user_id, module_id, comment, rating)
      VALUES ($1, $2, $3, $4) RETURNING *`,
-    [userId, moduleId, comment, rating]
+    [userId, moduleId, comment, rating],
   );
   return result.rows[0];
 }
@@ -18,7 +18,7 @@ async function getModuleFeedback(moduleId) {
      JOIN users u ON lf.user_id = u.id
      WHERE lf.module_id = $1
      ORDER BY lf.created_at DESC`,
-    [moduleId]
+    [moduleId],
   );
   return result.rows;
 }
@@ -31,7 +31,7 @@ async function getUserFeedback(userId) {
      JOIN learning_modules m ON lf.module_id = m.id
      WHERE lf.user_id = $1
      ORDER BY lf.created_at DESC`,
-    [userId]
+    [userId],
   );
   return result.rows;
 }
@@ -39,5 +39,5 @@ async function getUserFeedback(userId) {
 module.exports = {
   addFeedback,
   getModuleFeedback,
-    getUserFeedback,
-  }
+  getUserFeedback,
+};

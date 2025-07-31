@@ -1,6 +1,6 @@
 import './styles/App.css';
 import { useState, useRef, useEffect } from 'react';
-import { Layout, Menu, Input, Avatar, Popover } from 'antd';
+import { Layout, Menu, Input, Avatar, Popover, Button } from 'antd';
 import {
   PieChartOutlined,
   ExperimentOutlined,
@@ -8,6 +8,7 @@ import {
   TeamOutlined,
   SolutionOutlined,
   UserOutlined,
+  EditOutlined,
 } from '@ant-design/icons';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import Login from './pages/Login.jsx';
@@ -19,6 +20,7 @@ import ProfileMenu from './components/ProfileMenu.jsx';
 import { useUser } from './context/UserContext.jsx';
 import ProfilePreferences from './pages/ProfilePreferences.jsx';
 import FavoritesDropdown from './components/FavoritesDropdown';
+import { FavoritesProvider, useFavorites } from './context/FavoritesContext';
 
 // If you use ReactPlayer elsewhere in the app, keep this import:
 // import ReactPlayer from 'react-player';
@@ -29,16 +31,10 @@ function App() {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [favoritesExpanded, setFavoritesExpanded] = useState(false);
+  const [editFavorites, setEditFavorites] = useState(false);
   const { user, logout: handleLogout } = useUser();
-  const [favorites, setFavorites] = useState([]);
-
-  function handleAddFavorite(item) {
-    setFavorites((prev) => {
-      // Prevent duplicates by key or id
-      if (prev.some((fav) => fav.key === item.key)) return prev;
-      return [...prev, item];
-    });
-  }
+  const { favorites, addFavorite, removeFavorite, reorderFavorites } =
+    useFavorites();
 
   return (
     <Routes>
@@ -160,16 +156,39 @@ function App() {
                 <Menu.Item
                   key="favorites"
                   icon={<StarOutlined />}
-                  style={{ userSelect: 'none' }}
+                  style={{
+                    userSelect: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
                   onClick={() => setFavoritesExpanded((prev) => !prev)}
                 >
-                  Favorites
+                  <span>Favorites</span>
+                  {favoritesExpanded && (
+                    <Button
+                      type="text"
+                      icon={<EditOutlined />}
+                      size="small"
+                      style={{
+                        marginLeft: 8,
+                        color: editFavorites ? '#1890ff' : '#aaa',
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditFavorites((prev) => !prev);
+                      }}
+                    />
+                  )}
                 </Menu.Item>
                 {favoritesExpanded && (
                   <div style={{ background: '#112244', paddingLeft: 32 }}>
                     <FavoritesDropdown
                       favorites={favorites}
                       onLinkClick={() => setFavoritesExpanded(false)}
+                      onRemoveFavorite={removeFavorite}
+                      onReorderFavorites={reorderFavorites}
+                      editMode={editFavorites}
                     />
                   </div>
                 )}
@@ -244,24 +263,20 @@ function App() {
                   <Routes>
                     <Route
                       path="/"
-                      element={<Analytics onAddFavorite={handleAddFavorite} />}
+                      element={<Analytics onAddFavorite={addFavorite} />}
                     />
                     <Route
                       path="/reporting"
-                      element={<Reporting onAddFavorite={handleAddFavorite} />}
+                      element={<Reporting onAddFavorite={addFavorite} />}
                     />
                     <Route
                       path="/collaboration"
-                      element={
-                        <Collaboration onAddFavorite={handleAddFavorite} />
-                      }
+                      element={<Collaboration onAddFavorite={addFavorite} />}
                     />
                     <Route
                       path="/learning&development"
                       element={
-                        <LearningAndDevelopment
-                          onAddFavorite={handleAddFavorite}
-                        />
+                        <LearningAndDevelopment onAddFavorite={addFavorite} />
                       }
                     />
                     <Route
@@ -282,7 +297,13 @@ function App() {
   );
 }
 
-export default App;
+export default function RootApp() {
+  return (
+    <FavoritesProvider>
+      <App />
+    </FavoritesProvider>
+  );
+}
 
 function AISearchBar() {
   const [okrs, setOkrs] = useState([]);

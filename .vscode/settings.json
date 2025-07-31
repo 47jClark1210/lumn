@@ -5,5 +5,18 @@
         "noreferrer",
         "Poweroff",
         "Upskill"
-    ]
+    ],
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "askForPassword": true,
+            "driver": "PostgreSQL",
+            "name": "lumnServer",
+            "database": "lumn_1898_db",
+            "username": "postgres"
+        }
+    ],
+    "files.eol": "\n"
 }
