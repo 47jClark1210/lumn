@@ -39,7 +39,6 @@ function FavoritesDropdown({
     );
   }
 
-  // Handle drag end for reorder
   const handleDragEnd = (result) => {
     if (!result.destination) return;
     if (result.source.index !== result.destination.index) {
@@ -57,84 +56,85 @@ function FavoritesDropdown({
               {...provided.droppableProps}
               style={{ display: 'flex', flexDirection: 'column', gap: 4 }}
             >
-              {favorites.map((fav, idx) => (
-                <Draggable
-                  key={fav.key || fav.id || fav.favorite_id}
-                  draggableId={String(fav.key || fav.id || fav.favorite_id)}
-                  index={idx}
-                  isDragDisabled={!editMode}
-                >
-                  {(dragProvided) => (
-                    <div
-                      ref={dragProvided.innerRef}
-                      {...dragProvided.draggableProps}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                        padding: '6px 0',
-                        color: '#fff',
-                        textDecoration: 'none',
-                        borderRadius: 6,
-                        transition: 'background 0.2s',
-                        background: editMode ? '#223355' : 'transparent',
-                        ...dragProvided.draggableProps.style,
-                      }}
-                    >
-                      {editMode && (
-                        <span
-                          {...dragProvided.dragHandleProps}
-                          style={{
-                            cursor: 'grab',
-                            marginRight: 4,
-                            color: '#aaa',
-                            fontSize: 18,
-                          }}
-                        >
-                          <MenuOutlined />
-                        </span>
-                      )}
-                      <Link
-                        to={fav.route}
-                        onClick={onLinkClick}
+              {favorites.map((fav, idx) => {
+                const favKey = fav.key || fav.id || fav.favorite_id;
+                return (
+                  <Draggable
+                    key={favKey}
+                    draggableId={String(favKey)}
+                    index={idx}
+                    isDragDisabled={!editMode}
+                  >
+                    {(dragProvided) => (
+                      <div
+                        ref={dragProvided.innerRef}
+                        {...dragProvided.draggableProps}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
                           gap: 8,
+                          padding: '6px 0',
                           color: '#fff',
-                          flex: 1,
                           textDecoration: 'none',
+                          borderRadius: 6,
+                          transition: 'background 0.2s',
+                          background: editMode ? '#223355' : 'transparent',
+                          ...dragProvided.draggableProps.style,
                         }}
                       >
-                        {iconMap[fav.type] || iconMap.default}
-                        {fav.avatar && (
-                          <Avatar
-                            src={fav.avatar}
-                            size={20}
-                            style={{ marginRight: 6 }}
+                        {editMode && (
+                          <span
+                            {...dragProvided.dragHandleProps}
+                            style={{
+                              cursor: 'grab',
+                              marginRight: 4,
+                              color: '#aaa',
+                              fontSize: 18,
+                            }}
+                          >
+                            <MenuOutlined />
+                          </span>
+                        )}
+                        <Link
+                          to={fav.route}
+                          onClick={onLinkClick}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            color: '#fff',
+                            flex: 1,
+                            textDecoration: 'none',
+                          }}
+                        >
+                          {iconMap[fav.type] || iconMap.default}
+                          {fav.avatar && (
+                            <Avatar
+                              src={fav.avatar}
+                              size={20}
+                              style={{ marginRight: 6 }}
+                            />
+                          )}
+                          <span>{fav.label}</span>
+                        </Link>
+                        {editMode && (
+                          <Button
+                            type="text"
+                            icon={
+                              <MinusCircleOutlined
+                                style={{ color: '#ff4d4f' }}
+                              />
+                            }
+                            aria-label={`Remove favorite ${fav.label}`}
+                            onClick={() => onRemoveFavorite(fav.type, fav.key)}
+                            style={{ marginLeft: 4 }}
                           />
                         )}
-                        <span>{fav.label}</span>
-                      </Link>
-                      {editMode && (
-                        <Button
-                          type="text"
-                          icon={
-                            <MinusCircleOutlined style={{ color: '#ff4d4f' }} />
-                          }
-                          onClick={() =>
-                            onRemoveFavorite(
-                              fav.favorite_type || fav.type,
-                              fav.favorite_id || fav.id,
-                            )
-                          }
-                          style={{ marginLeft: 4 }}
-                        />
-                      )}
-                    </div>
-                  )}
-                </Draggable>
-              ))}
+                      </div>
+                    )}
+                  </Draggable>
+                );
+              })}
               {provided.placeholder}
             </div>
           )}

@@ -1,10 +1,5 @@
-import { useState } from 'react';
-import {
-  generateMockUsers,
-  generateMockTeams,
-  getRandomFeaturedUser,
-  generateMockOKRs,
-} from '../utils/mockCollabData';
+import { useState, useEffect } from 'react';
+import { mockData, getRandomFeaturedUser } from '../utils/mockData';
 import '../styles/Collaboration.css';
 import {
   Card,
@@ -21,22 +16,46 @@ import {
   Modal,
   Collapse,
   Progress,
+  message,
 } from 'antd';
 import { TrophyOutlined, StarFilled } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Leaderboard from '../components/Leaderboard';
+import { useFavorites } from '../context/FavoritesContext';
 
-function Collaboration({ onAddFavorite }) {
-  // Generate random users and teams (can be replaced with real data)
-  const [users] = useState(() => generateMockUsers(6));
-  const [teams] = useState(() => generateMockTeams(3, users));
-  const [featured, setFeatured] = useState(() => getRandomFeaturedUser(users));
+function Collaboration() {
+  // Use centralized mock data for users, teams, okrs, modules
+  const [users] = useState(() => mockData.users);
+  const [teams] = useState(() => mockData.teams);
+  const [okrs] = useState(() => mockData.okrs);
+  const [modules] = useState(() => mockData.modules);
+
+  // Featured can be a user or a team, with their related OKRs
+  const [featured, setFeatured] = useState(() => getRandomFeaturedUser());
   const [reportingModal, setReportingModal] = useState({
     visible: false,
     okr: null,
   });
+  const [okrSummaries, setOkrSummaries] = useState({}); // { okrId: summaryText }
   const navigate = useNavigate();
+  const location = useLocation();
   const isAdmin = featured.data && featured.data.role === 'admin';
+
+  // Use context for favorites
+  const { addFavorite } = useFavorites();
+
+  // Add to favorites handler (calls context)
+  const handleAddFavorite = async (favoriteObj) => {
+    try {
+      await addFavorite(
+        favoriteObj.type,
+        favoriteObj.key.replace(`${favoriteObj.type}-`, ''),
+      );
+      message.success('Added to favorites!');
+    } catch (err) {
+      message.error('Failed to add to favorites.');
+    }
+  };
 
   function handleOpenReportingModal(okr) {
     setReportingModal({ visible: true, okr });
@@ -49,19 +68,34 @@ function Collaboration({ onAddFavorite }) {
   }
 
   function ReportingModal({ visible, okr, onClose, isAdmin }) {
-    const [activeKey, setActiveKey] = useState([]);
+    const [activeKey, setActiveKey] = useState(isAdmin ? [] : ['2']);
+    const [draftSummary, setDraftSummary] = useState(
+      okr && okrSummaries[okr.id] ? okrSummaries[okr.id] : '',
+    );
 
     if (!okr) return null;
+
+    const summaryExists = !!okrSummaries[okr.id];
+
+    const handleSaveSummary = () => {
+      setOkrSummaries((prev) => ({
+        ...prev,
+        [okr.id]: draftSummary.trim(),
+      }));
+    };
+
     return (
       <Modal
         open={visible}
         onCancel={onClose}
         footer={null}
         width={700}
-        title={`OKR: ${okr.title}`}
+        title={`OKR: ${okr.objective || okr.title}`}
       >
         <div style={{ marginBottom: 16 }}>
-          <div style={{ fontWeight: 600, fontSize: 18 }}>{okr.title}</div>
+          <div style={{ fontWeight: 600, fontSize: 18 }}>
+            {okr.objective || okr.title}
+          </div>
           <Tag
             color={okr.status === 'Active' ? 'green' : 'red'}
             style={{ borderRadius: 8, fontWeight: 500, marginLeft: 8 }}
@@ -86,36 +120,36 @@ function Collaboration({ onAddFavorite }) {
             />
           </div>
         </div>
-        {isAdmin && (
-          <Button
-            type="primary"
-            style={{ marginBottom: 12 }}
-            onClick={() =>
-              setActiveKey((keys) =>
-                keys.includes('1')
-                  ? keys.filter((k) => k !== '1')
-                  : [...keys, '1'],
-              )
-            }
-          >
-            {activeKey.includes('1') ? 'Hide Draft Summary' : 'Draft Summary'}
-          </Button>
-        )}
         <Collapse
           activeKey={activeKey}
           onChange={setActiveKey}
-          defaultActiveKey={isAdmin ? [] : ['2']}
+          defaultActiveKey={isAdmin ? [] : ['1', '2']}
         >
+          <Collapse.Panel header="Updates" key="1">
+            {summaryExists ? (
+              <div style={{ whiteSpace: 'pre-line', marginBottom: 8 }}>
+                {okrSummaries[okr.id]}
+              </div>
+            ) : (
+              <div style={{ color: '#888', fontStyle: 'italic' }}>
+                Nothing to show yet.
+              </div>
+            )}
+          </Collapse.Panel>
           {isAdmin && (
-            <Collapse.Panel header="Draft Summary" key="1">
+            <Collapse.Panel header="Draft Summary" key="3">
               <div style={{ marginBottom: 8 }}>
                 Draft a summary for this OKR:
               </div>
               <textarea
                 style={{ width: '100%', minHeight: 80, marginBottom: 8 }}
                 placeholder="Enter summary..."
+                value={draftSummary}
+                onChange={(e) => setDraftSummary(e.target.value)}
               />
-              <Button type="primary">Save Summary</Button>
+              <Button type="primary" onClick={handleSaveSummary}>
+                Save Summary
+              </Button>
             </Collapse.Panel>
           )}
           <Collapse.Panel header="Feedback" key="2">
@@ -134,11 +168,14 @@ function Collaboration({ onAddFavorite }) {
   // Helper: Render Featured Card
   const renderFeaturedCard = () => {
     if (featured.type === 'user') {
+      // Get OKRs for this user from mockData
+      const userOKRs = okrs.filter((okr) => okr.ownerId === featured.data.id);
       return (
         <Card
+          className="hide-scrollbar"
           style={{
             height: 400,
-            maxWidth: 800,
+            maxWidth: 600,
             margin: '0 auto',
             borderRadius: 16,
             boxShadow: '0 2px 16px rgba(20,24,75,0.10)',
@@ -161,38 +198,23 @@ function Collaboration({ onAddFavorite }) {
             <div style={{ flex: 1, minWidth: 220, maxWidth: 350 }}>
               <Descriptions
                 title={
-                  <Tooltip
-                    title={`Go to ${featured.data.name}'s Profile`}
-                    color="#18ff3eff"
-                    overlayInnerStyle={{
-                      color: '#222',
-                      fontWeight: 500,
-                      fontSize: 11,
-                      border: '1px solid #18ff3eff',
-                      boxShadow: '0 2px 8px rgba(24,144,255,0.10)',
-                      padding: '6px 14px',
-                      minWidth: 120,
-                      textAlign: 'center',
+                  <span
+                    style={{
+                      fontWeight: 700,
+                      fontSize: 22,
+                      color: '#14184b',
+                      cursor: 'pointer',
                     }}
+                    onClick={() =>
+                      setFeatured({
+                        type: 'user',
+                        data: featured.data,
+                        okrs: userOKRs,
+                      })
+                    }
                   >
-                    <span
-                      style={{
-                        fontWeight: 700,
-                        fontSize: 22,
-                        color: '#14184b',
-                        cursor: 'pointer',
-                      }}
-                      onClick={() =>
-                        setFeatured({
-                          type: 'user',
-                          data: featured.data,
-                          okrs: featured.okrs,
-                        })
-                      }
-                    >
-                      {featured.data.name}
-                    </span>
-                  </Tooltip>
+                    {featured.data.name}
+                  </span>
                 }
                 column={1}
                 labelStyle={{ fontWeight: 600, color: '#888' }}
@@ -230,7 +252,11 @@ function Collaboration({ onAddFavorite }) {
                           (t) => t.name === featured.data.team,
                         );
                         if (t)
-                          setFeatured({ type: 'team', data: t, okrs: t.okrs });
+                          setFeatured({
+                            type: 'team',
+                            data: t,
+                            okrs: okrs.filter((okr) => okr.teamId === t.id),
+                          });
                       }}
                     >
                       {featured.data.team}
@@ -247,34 +273,19 @@ function Collaboration({ onAddFavorite }) {
                 gap: 12,
               }}
             >
-              <Tooltip
-                title={`Go to ${featured.data.name}'s Profile`}
-                color="#18ff3eff"
-                overlayInnerStyle={{
-                  color: '#222',
-                  fontWeight: 500,
-                  fontSize: 11,
-                  border: '1px solid #18ff3eff',
-                  boxShadow: '0 2px 8px rgba(24,144,255,0.10)',
-                  padding: '6px 14px',
-                  minWidth: 120,
-                  textAlign: 'center',
+              <Avatar
+                src={featured.data.avatar}
+                size={128}
+                style={{
+                  boxShadow: '0 2px 8px rgba(20,24,75,0.10)',
+                  cursor: 'pointer',
                 }}
-              >
-                <Avatar
-                  src={featured.data.avatar}
-                  size={128}
-                  style={{
-                    boxShadow: '0 2px 8px rgba(20,24,75,0.10)',
-                    cursor: 'pointer',
-                  }}
-                />
-              </Tooltip>
+              />
               <Button
                 icon={<StarFilled style={{ color: '#fadb14' }} />}
                 type="text"
                 onClick={() =>
-                  onAddFavorite({
+                  handleAddFavorite({
                     key: `user-${featured.data.name}`,
                     type: 'user',
                     label: featured.data.name,
@@ -293,18 +304,18 @@ function Collaboration({ onAddFavorite }) {
             Involvement
           </h3>
           <div style={{ width: '100%' }}>
-            {/* Playground Grid: First Row - OKRs */}
+            {/* OKRs for this user */}
             <div style={{ marginBottom: 24 }}>
               <span style={{ fontWeight: 600, fontSize: 16 }}>
                 OKRs Involved With
               </span>
               <div style={{ marginTop: 12 }}>
                 <Row gutter={[16, 16]}>
-                  {featured.okrs && featured.okrs.length > 0 ? (
-                    featured.okrs.map((okr) => (
+                  {userOKRs.length > 0 ? (
+                    userOKRs.map((okr) => (
                       <Col key={okr.id}>
                         <Tooltip
-                          title={`View and interact with reporting for ${okr.title}`}
+                          title={`View and interact with reporting for ${okr.objective || okr.title}`}
                           color="#1890ff"
                         >
                           <Card
@@ -318,7 +329,7 @@ function Collaboration({ onAddFavorite }) {
                             onClick={() => handleOpenReportingModal(okr)}
                           >
                             <div style={{ fontWeight: 600, fontSize: 15 }}>
-                              {okr.title}
+                              {okr.objective || okr.title}
                             </div>
                             <Tag
                               color={okr.status === 'Active' ? 'green' : 'red'}
@@ -362,68 +373,49 @@ function Collaboration({ onAddFavorite }) {
                 </Row>
               </div>
             </div>
-            {/* Playground Grid: Second Row - Training Modules */}
-            <div>
+            {/* Training Modules for this user */}
+            <div style={{ marginBottom: 24 }}>
               <span style={{ fontWeight: 600, fontSize: 16 }}>
                 Training Modules
               </span>
               <div style={{ marginTop: 12 }}>
                 <Row gutter={[16, 16]}>
-                  {featured.data.trainingModules &&
-                  featured.data.trainingModules.length > 0 ? (
-                    featured.data.trainingModules.map((mod) => (
-                      <Col key={mod.id}>
-                        <Tooltip
-                          title={`Go to ${mod.title} in Learning & Development`}
-                          color="#52c41a"
-                        >
-                          <Card
-                            hoverable
-                            style={{
-                              minWidth: 220,
-                              maxWidth: 260,
-                              borderRadius: 10,
-                              border: '1px solid #e6fffb',
-                            }}
-                            onClick={() => handleNavigateToModule(mod.id)}
+                  {featured.data.assignedModules &&
+                  featured.data.assignedModules.length > 0 ? (
+                    featured.data.assignedModules.map((modId) => {
+                      const mod = modules.find((m) => m.id === modId);
+                      return (
+                        <Col key={modId}>
+                          <Tooltip
+                            title={`Go to module: ${mod?.name || modId}`}
                           >
-                            <div style={{ fontWeight: 600, fontSize: 15 }}>
-                              {mod.title}
-                            </div>
-                            <div style={{ marginTop: 8 }}>
-                              <Tag
-                                color="#52c41a"
-                                style={{ borderRadius: 8, fontWeight: 500 }}
-                              >
-                                {mod.status || 'Active'}
-                              </Tag>
-                            </div>
-                            <div
+                            <Card
+                              hoverable
                               style={{
-                                marginTop: 8,
-                                display: 'flex',
-                                justifyContent: 'center',
+                                minWidth: 180,
+                                maxWidth: 220,
+                                borderRadius: 10,
+                                border: '1px solid #e6f7ff',
                               }}
+                              onClick={() => handleNavigateToModule(modId)}
                             >
-                              <Progress
-                                type="circle"
-                                percent={mod.progress || 0}
-                                width={36}
-                                strokeColor={{
-                                  '0%': '#1890ff',
-                                  '100%': '#52c41a',
-                                }}
-                                format={(percent) => `${percent}%`}
-                                style={{ fontWeight: 700 }}
-                              />
-                            </div>
-                          </Card>
-                        </Tooltip>
-                      </Col>
-                    ))
+                              <div style={{ fontWeight: 600, fontSize: 15 }}>
+                                {mod?.name || 'Unknown Module'}
+                              </div>
+                              <div style={{ color: '#888', marginTop: 4 }}>
+                                {mod?.category}
+                              </div>
+                              <div style={{ color: '#888', marginTop: 4 }}>
+                                Instructor: {mod?.instructor}
+                              </div>
+                            </Card>
+                          </Tooltip>
+                        </Col>
+                      );
+                    })
                   ) : (
                     <Col>
-                      <span style={{ color: '#888' }}>No Training Modules</span>
+                      <span style={{ color: '#888' }}>No assigned modules</span>
                     </Col>
                   )}
                 </Row>
@@ -440,6 +432,8 @@ function Collaboration({ onAddFavorite }) {
         </Card>
       );
     } else if (featured.type === 'team') {
+      // Get OKRs for this team from mockData
+      const teamOKRs = okrs.filter((okr) => okr.teamId === featured.data.id);
       return (
         <Card
           style={{
@@ -481,9 +475,8 @@ function Collaboration({ onAddFavorite }) {
                     ? featured.data.leads.map((lead, idx) => {
                         const userObj = users.find((u) => u.name === lead);
                         return (
-                          <Tag>
+                          <Tag key={lead}>
                             <span
-                              key={lead}
                               style={{
                                 cursor: userObj ? 'pointer' : 'default',
                                 color: userObj ? '#1890ff' : undefined,
@@ -494,7 +487,9 @@ function Collaboration({ onAddFavorite }) {
                                   setFeatured({
                                     type: 'user',
                                     data: userObj,
-                                    okrs: generateMockOKRs(2),
+                                    okrs: okrs.filter(
+                                      (okr) => okr.ownerId === userObj.id,
+                                    ),
                                   });
                                 }
                               }}
@@ -513,9 +508,8 @@ function Collaboration({ onAddFavorite }) {
                     ? featured.data.collaborators.map((collab, idx) => {
                         const userObj = users.find((u) => u.name === collab);
                         return (
-                          <Tag>
+                          <Tag key={collab}>
                             <span
-                              key={collab}
                               style={{
                                 cursor: userObj ? 'pointer' : 'default',
                                 color: userObj ? '#1890ff' : undefined,
@@ -526,7 +520,9 @@ function Collaboration({ onAddFavorite }) {
                                   setFeatured({
                                     type: 'user',
                                     data: userObj,
-                                    okrs: generateMockOKRs(2),
+                                    okrs: okrs.filter(
+                                      (okr) => okr.ownerId === userObj.id,
+                                    ),
                                   });
                                 }
                               }}
@@ -560,7 +556,7 @@ function Collaboration({ onAddFavorite }) {
                 icon={<StarFilled style={{ color: '#fadb14' }} />}
                 type="text"
                 onClick={() =>
-                  onAddFavorite({
+                  handleAddFavorite({
                     key: `team-${featured.data.id}`,
                     type: 'team',
                     label: featured.data.name,
@@ -578,11 +574,11 @@ function Collaboration({ onAddFavorite }) {
             OKRs Involvement
           </h3>
           <Row gutter={[16, 16]}>
-            {featured.okrs && featured.okrs.length > 0 ? (
-              featured.okrs.map((okr) => (
+            {teamOKRs.length > 0 ? (
+              teamOKRs.map((okr) => (
                 <Col key={okr.id}>
                   <Tooltip
-                    title={`View and interact with reporting for ${okr.title}`}
+                    title={`View and interact with reporting for ${okr.objective || okr.title}`}
                     color="#1890ff"
                   >
                     <Card
@@ -596,7 +592,7 @@ function Collaboration({ onAddFavorite }) {
                       onClick={() => handleOpenReportingModal(okr)}
                     >
                       <div style={{ fontWeight: 600, fontSize: 15 }}>
-                        {okr.title}
+                        {okr.objective || okr.title}
                       </div>
                       <Tag
                         color={okr.status === 'Active' ? 'green' : 'red'}
@@ -661,7 +657,10 @@ function Collaboration({ onAddFavorite }) {
         setFeatured({
           type,
           data: item,
-          okrs: type === 'user' ? generateMockOKRs(2) : item.okrs,
+          okrs:
+            type === 'user'
+              ? okrs.filter((okr) => okr.ownerId === item.id)
+              : okrs.filter((okr) => okr.teamId === item.id),
         })
       }
     >
@@ -704,9 +703,9 @@ function Collaboration({ onAddFavorite }) {
         <Button
           icon={<StarFilled style={{ color: '#fadb14' }} />}
           type="text"
-          onClick={(e) => {
+          onClick={async (e) => {
             e.stopPropagation();
-            onAddFavorite({
+            await handleAddFavorite({
               key: `${type}-${item.id}`,
               type,
               label: item.name,
@@ -721,6 +720,20 @@ function Collaboration({ onAddFavorite }) {
       </Tooltip>
     </Card>
   );
+
+  useEffect(() => {
+    // eslint-disable-next-line no-undef
+    const params = new URLSearchParams(location.search);
+    const userName = params.get('user');
+    const teamName = params.get('team');
+    if (userName) {
+      const user = users.find((u) => u.name === userName);
+      if (user) setFeatured({ type: 'user', data: user });
+    } else if (teamName) {
+      const team = teams.find((t) => t.name === teamName);
+      if (team) setFeatured({ type: 'team', data: team });
+    }
+  }, [location.search, users, teams]);
 
   return (
     <div
