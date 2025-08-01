@@ -10,11 +10,13 @@ import {
   Tag,
   Avatar,
   Collapse,
+  Tooltip,
 } from 'antd';
 import ReactPlayer from 'react-player';
 import Leaderboard from '../components/Leaderboard';
 import { StarFilled } from '@ant-design/icons';
 import { mockData } from '../utils/mockData';
+import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
 
 function LearningAndDevelopment({ onAddFavorite }) {
   // Use mockData.modules instead of API
@@ -366,17 +368,75 @@ function LearningAndDevelopment({ onAddFavorite }) {
               )}
               <Divider style={{ margin: '24px 0' }} />
               <b>Switch Module:</b>
-              <div className="switch-module-btns">
-                {modules.map((mod, idx) => (
+              <div
+                className="switch-module-btns"
+                style={{
+                  display: 'flex',
+                  gap: 16,
+                  alignItems: 'center',
+                }}
+              >
+                <Tooltip
+                  title="Go to previous module"
+                  color="#6d34bcff"
+                  overlayInnerStyle={{
+                    color: '#ffffff',
+                    fontWeight: 500,
+                    fontSize: 12,
+                    border: '1px solid #6d34bcff',
+                    boxShadow: '0 2px 8px rgba(109,52,188,0.10)',
+                    padding: '6px 14px',
+                    minWidth: 120,
+                    textAlign: 'center',
+                  }}
+                >
                   <Button
-                    key={mod.id || mod._id || mod.title}
-                    type={activeModule === idx ? 'primary' : 'default'}
-                    className="switch-module-btn"
-                    onClick={() => setActiveModule(idx)}
+                    type="text"
+                    disabled={activeModule === 0}
+                    onClick={() => setActiveModule(activeModule - 1)}
+                    style={{
+                      fontWeight: 600,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
                   >
-                    {mod.title}
+                    <ArrowLeftOutlined />
+                    Previous
                   </Button>
-                ))}
+                </Tooltip>
+                <span style={{ fontWeight: 600 }}>
+                  {modules[activeModule]?.title}
+                </span>
+                <Tooltip
+                  title="Go to next module"
+                  color="#6d34bcff"
+                  overlayInnerStyle={{
+                    color: '#ffffff',
+                    fontWeight: 500,
+                    fontSize: 12,
+                    border: '1px solid #6d34bcff',
+                    boxShadow: '0 2px 8px rgba(109,52,188,0.10)',
+                    padding: '6px 14px',
+                    minWidth: 120,
+                    textAlign: 'center',
+                  }}
+                >
+                  <Button
+                    type="text"
+                    disabled={activeModule === modules.length - 1}
+                    onClick={() => setActiveModule(activeModule + 1)}
+                    style={{
+                      fontWeight: 600,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                  >
+                    Next
+                    <ArrowRightOutlined />
+                  </Button>
+                </Tooltip>
               </div>
             </Card>
           )}
