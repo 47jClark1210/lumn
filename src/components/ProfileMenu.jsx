@@ -41,13 +41,13 @@ function ProfileMenu({ user, onLogout }) {
       </div>
       <Divider style={{ margin: '14px 0 10px 0' }} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <Link to="/profile-preferences">
+        <Link to="/ProfilePreferences">
           <Button
             block
             icon={<SettingOutlined />}
             style={{ textAlign: 'left', borderRadius: 8, fontWeight: 500 }}
           >
-            Settings
+            Preferences
           </Button>
         </Link>
         <Button

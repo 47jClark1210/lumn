@@ -4,7 +4,7 @@ module.exports = (req, res, next) => {
   req.user = {
     id: 1,
     role: 'super_admin', // Change this to test different roles
-    email: 'admin@example.com'
+    email: 'admin@example.com',
   };
   next();
 };
