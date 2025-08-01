@@ -7,29 +7,75 @@ export const titles = [
   'Expand Market Share',
   'Reduce Churn',
   'Launch New Feature',
+  'Optimize Workflow',
+  'Increase Retention',
+  'Enhance Collaboration',
 ];
+
+export const teams = [
+  { name: 'Product Development', icon: null, color: 'magenta' },
+  { name: 'Engineering', icon: null, color: 'volcano' },
+  { name: 'Marketing', icon: null, color: 'orange' },
+  { name: 'Sales', icon: null, color: 'gold' },
+  { name: 'Customer Success', icon: null, color: 'lime' },
+  { name: 'Design', icon: null, color: 'green' },
+  { name: 'QA', icon: null, color: 'cyan' },
+  { name: 'IT Support', icon: null, color: 'blue' },
+  { name: 'HR', icon: null, color: 'geekblue' },
+  { name: 'Finance', icon: null, color: 'purple' },
+];
+
 export const owners = [
   {
     name: 'Jane Doe',
     avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+    team: 'Product Development',
   },
   {
     name: 'John Smith',
     avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+    team: 'Engineering',
   },
   {
     name: 'Alice Lee',
     avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
+    team: 'Marketing',
   },
   {
     name: 'Bob Brown',
     avatar: 'https://randomuser.me/api/portraits/men/15.jpg',
+    team: 'Sales',
   },
-];
-export const teams = [
-  { name: 'Product Development', icon: null }, // Set icon in component if needed
-  { name: 'Engineering', icon: null },
-  { name: 'Marketing', icon: null },
+  {
+    name: 'Carlos Rivera',
+    avatar: 'https://randomuser.me/api/portraits/men/23.jpg',
+    team: 'Customer Success',
+  },
+  {
+    name: 'Emily Zhang',
+    avatar: 'https://randomuser.me/api/portraits/women/12.jpg',
+    team: 'Design',
+  },
+  {
+    name: 'Fatima Alvi',
+    avatar: 'https://randomuser.me/api/portraits/women/36.jpg',
+    team: 'QA',
+  },
+  {
+    name: 'George Kim',
+    avatar: 'https://randomuser.me/api/portraits/men/41.jpg',
+    team: 'IT Support',
+  },
+  {
+    name: 'Hannah Patel',
+    avatar: 'https://randomuser.me/api/portraits/women/22.jpg',
+    team: 'HR',
+  },
+  {
+    name: 'Ivan Petrov',
+    avatar: 'https://randomuser.me/api/portraits/men/55.jpg',
+    team: 'Finance',
+  },
 ];
 
 export function getRandomInt(min, max) {
@@ -47,7 +93,8 @@ export function generateKeyResults() {
 
 export function generateObjective(idx) {
   const owner = owners[getRandomInt(0, owners.length - 1)];
-  const team = teams[getRandomInt(0, teams.length - 1)];
+  // Always use the owner's team string to find the team object
+  const team = findTeamByName(teams, owner.team);
   return {
     title: titles[idx % titles.length],
     owner,
@@ -73,4 +120,14 @@ export function getProgressGradient(success, percent) {
   if (gray > 0)
     stops.push(`${grayColor} ${green + blue}%`, `${grayColor} 100%`);
   return `linear-gradient(90deg, ${stops.join(', ')})`;
+}
+
+// Find a team object by name from the teams array
+export function findTeamByName(teams, teamName) {
+  return teams.find((t) => t.name === teamName);
+}
+
+// Find an owner object by name from the owners array
+export function findOwnerByName(owners, ownerName) {
+  return owners.find((o) => o.name === ownerName);
 }

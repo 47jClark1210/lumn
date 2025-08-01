@@ -1,5 +1,5 @@
 import '../styles/LearningAndDevelopment.css';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Button,
   Card,
@@ -14,17 +14,20 @@ import {
 import ReactPlayer from 'react-player';
 import Leaderboard from '../components/Leaderboard';
 import { StarFilled } from '@ant-design/icons';
+import { mockData } from '../utils/mockData';
 
 function LearningAndDevelopment({ onAddFavorite }) {
-  // Learning & Development page with backend integration
-  const [modules, setModules] = useState([]);
-  const [activeModule, setActiveModule] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Use mockData.modules instead of API
+  const [modules, setModules] = useState(mockData.modules);
+  const [activeModule, setActiveModule] = useState(
+    mockData.modules.length ? 0 : null,
+  );
+  const [loading] = useState(false); // No loading needed for mock data
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [assignUser, setAssignUser] = useState('');
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackDraft, setFeedbackDraft] = useState('');
-  const [isAdmin] = useState(true); // Simulate admin logic
+  const [isAdmin] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [editDraft, setEditDraft] = useState({});
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -38,31 +41,16 @@ function LearningAndDevelopment({ onAddFavorite }) {
     feedback: [],
   });
 
-  // Fetch modules from backend
-  useEffect(() => {
-    async function fetchModules() {
-      setLoading(true);
-      try {
-        const res = await fetch('/api/modules');
-        const data = await res.json();
-        setModules(data);
-        setActiveModule(data.length ? 0 : null);
-      } catch (err) {
-        setModules([]);
-      }
-      setLoading(false);
-    }
-    fetchModules();
-  }, []);
-
-  // Create module
-  const handleCreateModule = async () => {
+  // Create module (mock)
+  const handleCreateModule = () => {
     if (!createDraft.title.trim() || !createDraft.video.trim()) return;
-    await fetch('/api/modules', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(createDraft),
-    });
+    const newModule = {
+      ...createDraft,
+      id: `mod${modules.length + 1}`,
+      assigned: false,
+    };
+    const updatedModules = [...modules, newModule];
+    setModules(updatedModules);
     setShowCreateModal(false);
     setCreateDraft({
       title: '',
@@ -73,81 +61,55 @@ function LearningAndDevelopment({ onAddFavorite }) {
       mentor: '',
       feedback: [],
     });
-    const res = await fetch('/api/modules');
-    const data = await res.json();
-    setModules(data);
-    setActiveModule(data.length ? data.length - 1 : null);
+    setActiveModule(updatedModules.length - 1);
   };
 
-  // Edit module
-  const handleEditModule = async () => {
+  // Edit module (mock)
+  const handleEditModule = () => {
     if (!editDraft.title.trim() || !editDraft.video.trim()) return;
-    await fetch(`/api/modules/${modules[activeModule]._id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(editDraft),
-    });
+    const updatedModules = modules.map((mod, idx) =>
+      idx === activeModule ? { ...editDraft } : mod,
+    );
+    setModules(updatedModules);
     setEditMode(false);
-    const res = await fetch('/api/modules');
-    const data = await res.json();
-    setModules(data);
   };
 
-  // Delete module
-  const handleDeleteModule = async () => {
-    await fetch(`/api/modules/${modules[activeModule]._id}`, {
-      method: 'DELETE',
-    });
-    const res = await fetch('/api/modules');
-    const data = await res.json();
-    setModules(data);
-    setActiveModule(data.length ? 0 : null);
+  // Delete module (mock)
+  const handleDeleteModule = () => {
+    const updatedModules = modules.filter((_, idx) => idx !== activeModule);
+    setModules(updatedModules);
+    setActiveModule(updatedModules.length ? 0 : null);
   };
 
-  // Assign module
-  const handleAssign = async () => {
+  // Assign module (mock)
+  const handleAssign = () => {
     if (!assignUser.trim()) return;
-    await fetch(`/api/modules/${modules[activeModule]._id}/assign`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user: assignUser }),
-    });
+    const updatedModules = modules.map((mod, idx) =>
+      idx === activeModule ? { ...mod, assigned: true } : mod,
+    );
+    setModules(updatedModules);
     setShowAssignModal(false);
     setAssignUser('');
-    const res = await fetch('/api/modules');
-    const data = await res.json();
-    setModules(data);
   };
 
-  // Add feedback
-  const handleAddFeedback = async () => {
+  // Add feedback (mock)
+  const handleAddFeedback = () => {
     if (!feedbackDraft.trim()) return;
-    await fetch(`/api/modules/${modules[activeModule]._id}/feedback`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user: 'You', comment: feedbackDraft }),
-    });
+    const updatedModules = modules.map((mod, idx) =>
+      idx === activeModule
+        ? {
+            ...mod,
+            feedback: [
+              ...(mod.feedback || []),
+              { user: { name: 'You', avatar: '' }, comment: feedbackDraft },
+            ],
+          }
+        : mod,
+    );
+    setModules(updatedModules);
     setShowFeedbackModal(false);
     setFeedbackDraft('');
-    const res = await fetch('/api/modules');
-    const data = await res.json();
-    setModules(data);
   };
-
-  // Example modules array
-  const exampleModules = [
-    {
-      id: 'mod1',
-      title: 'React Basics',
-      description: 'Learn React fundamentals.',
-    },
-    {
-      id: 'mod2',
-      title: 'Advanced JS',
-      description: 'Deep dive into JavaScript.',
-    },
-    // ...other modules
-  ];
 
   return (
     <div className="learning-page">
@@ -211,12 +173,28 @@ function LearningAndDevelopment({ onAddFavorite }) {
               )
             }
             extra={
-              <Tag
-                color={modules[activeModule].assigned ? 'green' : 'orange'}
-                style={{ fontWeight: 600, borderRadius: 8 }}
-              >
-                {modules[activeModule].assigned ? 'Assigned' : 'Unassigned'}
-              </Tag>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Tag
+                  color={modules[activeModule].assigned ? 'green' : 'orange'}
+                  style={{ fontWeight: 600, borderRadius: 8 }}
+                >
+                  {modules[activeModule].assigned ? 'Assigned' : 'Unassigned'}
+                </Tag>
+                <Button
+                  icon={<StarFilled style={{ color: '#fadb14' }} />}
+                  type="text"
+                  aria-label="Add to favorites"
+                  onClick={() =>
+                    onAddFavorite(
+                      'module',
+                      modules[activeModule].id,
+                      modules[activeModule].title,
+                      `/learning&development/${modules[activeModule].id}`,
+                    )
+                  }
+                  style={{ marginLeft: 8 }}
+                />
+              </div>
             }
             style={{
               borderRadius: 16,
@@ -323,7 +301,12 @@ function LearningAndDevelopment({ onAddFavorite }) {
                   dataSource={modules[activeModule].feedback}
                   renderItem={(item) => (
                     <List.Item>
-                      <b>{item.user}:</b> {item.comment}
+                      <Avatar
+                        src={item.user.avatar}
+                        size={24}
+                        style={{ marginRight: 8 }}
+                      />
+                      <b>{item.user.name}:</b> {item.comment}
                     </List.Item>
                   )}
                   locale={{ emptyText: 'No feedback yet.' }}
@@ -376,7 +359,7 @@ function LearningAndDevelopment({ onAddFavorite }) {
             <div className="switch-module-btns">
               {modules.map((mod, idx) => (
                 <Button
-                  key={mod._id || mod.title}
+                  key={mod.id || mod._id || mod.title}
                   type={activeModule === idx ? 'primary' : 'default'}
                   className="switch-module-btn"
                   onClick={() => setActiveModule(idx)}
@@ -458,31 +441,6 @@ function LearningAndDevelopment({ onAddFavorite }) {
           placeholder="Write your feedback here..."
         />
       </Modal>
-      <div>
-        <h2>Learning Modules</h2>
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-          {exampleModules.map((mod) => (
-            <Card key={mod.id} title={mod.title} style={{ width: 260 }}>
-              <p>{mod.description}</p>
-              <Button
-                icon={<StarFilled style={{ color: '#fadb14' }} />}
-                type="text"
-                onClick={() =>
-                  onAddFavorite({
-                    key: `module-${mod.id}`,
-                    type: 'settings', // or another type if you prefer
-                    label: mod.title,
-                    route: `/learning&development/${mod.id}`,
-                  })
-                }
-                style={{ marginTop: 8 }}
-              >
-                Add to Favorites
-              </Button>
-            </Card>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

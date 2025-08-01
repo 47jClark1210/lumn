@@ -9,6 +9,7 @@ import {
   Progress,
   Avatar,
   Tag,
+  message,
 } from 'antd';
 import {
   EditOutlined,
@@ -17,12 +18,12 @@ import {
   UpOutlined,
   StarFilled,
 } from '@ant-design/icons';
-import { generateObjective, getProgressGradient } from '../utils/helpers';
+import { getProgressGradient } from '../utils/helpers';
+import { mockData } from '../utils/mockData';
 
 function Analytics({ onAddFavorite }) {
-  const [objectives, setObjectives] = useState(
-    Array.from({ length: 7 }).map((_, idx) => generateObjective(idx)),
-  );
+  // Use mock objectives from mockData
+  const [objectives, setObjectives] = useState(mockData.objectives || []);
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [editObjIndex, setEditObjIndex] = useState(null);
   const [editKRIndex, setEditKRIndex] = useState({ obj: null, kr: null });
@@ -30,11 +31,7 @@ function Analytics({ onAddFavorite }) {
   const [showKeyResults, setShowKeyResults] = useState(false);
 
   useEffect(() => {
-    if (expandedIndex !== null) {
-      setTimeout(() => setShowKeyResults(true), 10);
-    } else {
-      setShowKeyResults(false);
-    }
+    setTimeout(() => setShowKeyResults(true), 10);
   }, [expandedIndex]);
 
   // Edit Objective Title
@@ -86,8 +83,10 @@ function Analytics({ onAddFavorite }) {
       <div className="objective-list">
         {objectives.map((obj, cardIdx) => (
           <div
-            key={cardIdx}
-            className={`analytics-card-anim-wrapper${expandedIndex === cardIdx ? ' expanded' : ''}`}
+            key={obj.id || cardIdx}
+            className={`analytics-card-anim-wrapper${
+              expandedIndex === cardIdx ? ' expanded' : ''
+            }`}
             style={{
               transition:
                 'transform 0.6s cubic-bezier(0.4,0,0.2,1), opacity 0.6s',
@@ -370,7 +369,6 @@ function Analytics({ onAddFavorite }) {
                         success={{ percent: obj.objectiveSuccess }}
                         type="circle"
                         width={48}
-                        style={{}}
                       />
                     </Tooltip>
 
@@ -392,15 +390,16 @@ function Analytics({ onAddFavorite }) {
                       <Button
                         icon={<StarFilled style={{ color: '#fadb14' }} />}
                         type="text"
-                        onClick={() =>
-                          onAddFavorite({
-                            key: `okr-${obj.id}`,
-                            type: 'okr',
-                            label: obj.title,
-                            route: `/okrs/${obj.id}`,
-                            // avatar: obj.owner.avatar, // Uncomment if you want to show avatar in favorites
-                          })
-                        }
+                        aria-label="Add to favorites"
+                        onClick={() => {
+                          onAddFavorite(
+                            'okr',
+                            obj.id,
+                            obj.title,
+                            `/okrs/${obj.id}`,
+                          );
+                          message.success('Added to favorites!');
+                        }}
                         style={{ marginLeft: 0 }}
                       />
                     </Tooltip>
@@ -420,9 +419,7 @@ function Analytics({ onAddFavorite }) {
                           expandedIndex === cardIdx ? null : cardIdx,
                         )
                       }
-                      style={{
-                        marginLeft: 0,
-                      }}
+                      style={{ marginLeft: 0 }}
                       aria-label={
                         expandedIndex === cardIdx ? 'Collapse' : 'Expand'
                       }
@@ -444,8 +441,10 @@ function Analytics({ onAddFavorite }) {
               {expandedIndex === cardIdx &&
                 obj.keyResults.map((kr, idx) => (
                   <div
-                    key={idx}
-                    className={`key-result-slide${showKeyResults ? ' visible' : ''}`}
+                    key={kr.id || idx}
+                    className={`key-result-slide${
+                      showKeyResults ? ' visible' : ''
+                    }`}
                     style={{ transitionDelay: `${idx * 80}ms` }}
                   >
                     <Tooltip
@@ -484,7 +483,6 @@ function Analytics({ onAddFavorite }) {
                           </>
                         ) : (
                           <>
-                            {/* Objective Key Result Text */}
                             <span
                               style={{
                                 color: '#888',
@@ -503,7 +501,6 @@ function Analytics({ onAddFavorite }) {
                               onClick={() => handleEditKR(cardIdx, idx)}
                               style={{ marginRight: 12 }}
                             />
-                            {/* Vertical divider */}
                             <div
                               style={{
                                 width: 1,
@@ -514,7 +511,6 @@ function Analytics({ onAddFavorite }) {
                                 transform: 'translateX(-8px)',
                               }}
                             />
-                            {/* Progress bar (linear, no tooltip, no info) */}
                             <Progress
                               percent={kr.percent}
                               success={{ percent: kr.success }}

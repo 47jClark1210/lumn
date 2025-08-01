@@ -7,47 +7,59 @@ export function FavoritesProvider({ children }) {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch favorites on mount
+  // Fetch favorites on mount and normalize shape
   useEffect(() => {
     axios
       .get('/api/favorites', { withCredentials: true })
-      .then((res) => setFavorites(res.data))
+      .then((res) =>
+        setFavorites(
+          res.data.map((fav) => ({
+            type: fav.favorite_type,
+            key: fav.favorite_id,
+            label: fav.label,
+            route: fav.route,
+            id: fav.id, // backend id for removal/reorder
+          })),
+        ),
+      )
       .catch(() => setFavorites([]))
       .finally(() => setLoading(false));
   }, []);
 
-  const addFavorite = async (favoriteType, favoriteId) => {
+  // Add favorite (prevents duplicates, persists to backend, uses backend id)
+  const addFavorite = async (type, key, label, route) => {
+    console.log({ type, key, label, route }); // Add this line
+    // Prevent duplicates
+    if (favorites.some((fav) => fav.type === type && fav.key === key)) return;
+
     const res = await axios.post(
       '/api/favorites',
-      { favoriteType, favoriteId },
+      { favoriteType: type, favoriteId: key, label, route },
       { withCredentials: true },
     );
-    if (res.data) {
-      setFavorites((prev) =>
-        prev.some(
-          (fav) =>
-            fav.favorite_type === favoriteType &&
-            fav.favorite_id === favoriteId,
-        )
-          ? prev
-          : [...prev, res.data],
-      );
-    }
+    setFavorites((prev) => [
+      ...prev,
+      {
+        type,
+        key,
+        label,
+        route,
+        id: res.data.id, // backend id for removal/reorder
+      },
+    ]);
   };
 
+  // Remove favorite by backend id
   const removeFavorite = async (favoriteType, favoriteId) => {
+    const favToRemove = favorites.find(
+      (fav) => fav.type === favoriteType && fav.key === favoriteId,
+    );
+    if (!favToRemove) return;
     await axios.delete('/api/favorites', {
-      data: { favoriteType, favoriteId },
+      data: { id: favToRemove.id },
       withCredentials: true,
     });
-    setFavorites((prev) =>
-      prev.filter(
-        (fav) =>
-          !(
-            fav.favorite_type === favoriteType && fav.favorite_id === favoriteId
-          ),
-      ),
-    );
+    setFavorites((prev) => prev.filter((fav) => fav.id !== favToRemove.id));
   };
 
   // Reorder favorites (frontend and backend)

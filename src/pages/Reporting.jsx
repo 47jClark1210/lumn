@@ -1,488 +1,517 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  Button,
-  Input,
-  Progress,
-  Tooltip,
-  Avatar,
-  Modal,
-  Splitter,
   Card,
+  Collapse,
+  Badge,
+  Button,
+  Tooltip,
+  Tag,
+  Avatar,
+  Input,
+  message,
 } from 'antd';
 import {
-  EditOutlined,
-  SaveOutlined,
+  StarFilled,
   UpOutlined,
   DownOutlined,
-  StarFilled,
+  EditOutlined,
+  DeleteOutlined,
+  SaveOutlined,
+  PlusOutlined,
 } from '@ant-design/icons';
-import { getProgressGradient } from '../utils/helpers';
+import { mockData } from '../utils/mockData';
+import '../styles/Reporting.css';
 
 function Reporting({ onAddFavorite }) {
-  // State hooks
-  const [objectives, setObjectives] = useState([
-    {
-      title: 'Increase Sales',
-      owner: { name: 'Alice', avatar: '' },
-      team: { name: 'Sales', icon: null },
-      dateCreated: '2025-07-01',
-      objectivePercent: 80,
-      objectiveSuccess: 60,
-      summary: '',
-      keyResults: [
-        { text: 'Close 10 new deals', percent: 80, success: 60, feedback: '' },
-      ],
-    },
-  ]);
-  const [expandedIndex, setExpandedIndex] = useState(null);
-  const [removingIdx] = useState(null);
-  const [editObjIndex, setEditObjIndex] = useState(null);
-  const [editValue, setEditValue] = useState('');
-  const [summaryIdx, setSummaryIdx] = useState(null);
-  const [summaryDraft, setSummaryDraft] = useState('');
-  // Feedback for summary (per objective)
-  const [feedbackModalIdx, setFeedbackModalIdx] = useState(null);
+  const [reports, setReports] = useState([]);
+  const [expanded, setExpanded] = useState([]);
+  const [seen, setSeen] = useState({});
+  const [editingReport, setEditingReport] = useState(null);
+  const [editDraft, setEditDraft] = useState('');
   const [feedbackDraft, setFeedbackDraft] = useState('');
+  const [activeFeedbackReport, setActiveFeedbackReport] = useState(null);
+  const [isAdmin] = useState(true); // For demo, assume admin
 
-  // Example reports array
-  const reports = [
-    {
-      id: 'r1',
-      title: 'Quarterly Financials',
-      description: 'Q1 2025 results.',
-    },
-    {
-      id: 'r2',
-      title: 'Project Status',
-      description: 'Current project updates.',
-    },
-    // ...other reports
-  ];
+  const navigate = useNavigate();
 
-  // Utility: safely update objectives
-  const updateObjectives = (updater) => {
-    setObjectives((prev) => {
-      try {
-        return updater(prev);
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error('Error updating objectives:', e);
-        return prev;
-      }
+  // Use centralized mock reports data
+  useEffect(() => {
+    // Deep clone to allow local edits without mutating the source
+    setReports(JSON.parse(JSON.stringify(mockData.reports)));
+  }, []);
+
+  // --- Admin/Feedback Handlers ---
+  const handleEditSummary = (reportIdx, updateIdx) => {
+    setEditingReport({ reportIdx, updateIdx });
+    setEditDraft(reports[reportIdx].updates[updateIdx].summary);
+  };
+
+  const handleSaveSummary = () => {
+    const { reportIdx, updateIdx } = editingReport;
+    const updatedReports = [...reports];
+    updatedReports[reportIdx].updates[updateIdx].summary = editDraft;
+    setReports(updatedReports);
+    setEditingReport(null);
+    setEditDraft('');
+    message.success('Summary updated.');
+  };
+
+  const handleDeleteUpdate = (reportIdx, updateIdx) => {
+    const updatedReports = [...reports];
+    updatedReports[reportIdx].updates.splice(updateIdx, 1);
+    setReports(updatedReports);
+    message.success('Update deleted.');
+  };
+
+  const handleAddUpdate = (reportIdx) => {
+    const updatedReports = [...reports];
+    updatedReports[reportIdx].updates.push({
+      summary: 'New update...',
+      date: new Date().toISOString().slice(0, 10),
     });
+    setReports(updatedReports);
+    setSeen((old) => ({
+      ...old,
+      [updatedReports[reportIdx].id]: {
+        ...(old[updatedReports[reportIdx].id] || {}),
+        updates: 1,
+      },
+    }));
+    message.success('Update added.');
   };
 
-  // Handlers
-  const handleSaveObj = (cardIdx) => {
-    if (!editValue.trim()) return;
-    updateObjectives((prev) =>
-      prev.map((obj, idx) =>
-        idx === cardIdx ? { ...obj, title: editValue } : obj,
-      ),
-    );
-    setEditObjIndex(null);
-    setEditValue('');
-  };
-
-  const handleEditObj = (cardIdx) => {
-    setEditObjIndex(cardIdx);
-    setEditValue(objectives[cardIdx]?.title || '');
-  };
-
-  const handleSaveSummary = (cardIdx) => {
-    updateObjectives((prev) =>
-      prev.map((obj, idx) =>
-        idx === cardIdx ? { ...obj, summary: summaryDraft } : obj,
-      ),
-    );
-    setSummaryIdx(null);
-    setSummaryDraft('');
-  };
-
-  // Save feedback for summary (per objective)
-  const handleSaveFeedback = (cardIdx) => {
-    updateObjectives((prev) =>
-      prev.map((obj, idx) =>
-        idx === cardIdx
-          ? {
-              ...obj,
-              summaryFeedback: [
-                ...(obj.summaryFeedback || []),
-                feedbackDraft.trim(),
-              ],
-            }
-          : obj,
-      ),
-    );
-    setFeedbackModalIdx(null);
+  const handleAddFeedback = (reportIdx) => {
+    if (!feedbackDraft.trim()) return;
+    const updatedReports = [...reports];
+    updatedReports[reportIdx].feedback.push({
+      user: {
+        name: 'CurrentUser',
+        avatar: '', // Add current user's avatar URL if available
+      },
+      comment: feedbackDraft,
+      date: new Date().toISOString().slice(0, 10),
+    });
+    setReports(updatedReports);
+    setSeen((old) => ({
+      ...old,
+      [updatedReports[reportIdx].id]: {
+        ...(old[updatedReports[reportIdx].id] || {}),
+        feedback: 1,
+      },
+    }));
     setFeedbackDraft('');
+    setActiveFeedbackReport(null);
+    message.success('Feedback submitted.');
   };
 
-  // Render helpers
-  const renderTitle = (obj, cardIdx) => (
+  // --- Render ---
+  return (
     <div
       style={{
-        fontSize: 11,
-        fontWeight: 700,
-        marginTop: 3,
-        display: 'flex',
-        alignItems: 'center',
+        maxHeight: 'calc(100vh - 48px)',
+        overflowY: 'auto',
+        padding: '16px 16px 75px 16px', // top right bottom left
       }}
     >
-      {editObjIndex === cardIdx ? (
-        <>
-          <Input
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            onPressEnter={() => handleSaveObj(cardIdx)}
-            size="small"
-            style={{ width: '80%' }}
-            autoFocus
-          />
-          <Button
-            icon={<SaveOutlined />}
-            type="link"
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleSaveObj(cardIdx);
-            }}
-            style={{ marginLeft: 8, borderRadius: 8, fontWeight: 600 }}
-          />
-        </>
-      ) : (
-        <>
-          <span style={{ flex: 1 }}>{obj.title}</span>
-          <Button
-            icon={<EditOutlined />}
-            type="link"
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEditObj(cardIdx);
-            }}
-            style={{ marginLeft: 8, borderRadius: 8, fontWeight: 600 }}
-          />
-        </>
-      )}
-    </div>
-  );
-
-  // Main render
-  return (
-    <div>
-      <h2>Reports</h2>
-      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-        {reports.map((report) => (
-          <Card key={report.id} title={report.title} style={{ width: 260 }}>
-            <p>{report.description}</p>
-            <Button
-              icon={<StarFilled style={{ color: '#fadb14' }} />}
-              type="text"
-              onClick={() =>
-                onAddFavorite({
-                  key: `report-${report.id}`,
-                  type: 'report',
-                  label: report.title,
-                  route: `/reporting/${report.id}`,
-                })
-              }
-              style={{ marginTop: 8 }}
-            >
-              Add to Favorites
-            </Button>
-          </Card>
-        ))}
-      </div>
-      <Splitter
-        layout="vertical"
-        style={{
-          minHeight: 400,
-          boxShadow: '0 0 10px rgba(0,0,0,0.08)',
-          border: 'none',
-        }}
-      >
-        {objectives.map((obj, cardIdx) => (
-          <Splitter.Panel key={cardIdx}>
-            <div
-              className={`reporting-thread-header${removingIdx === cardIdx ? ' exit-right' : ''}${removingIdx !== null && cardIdx > removingIdx ? ' slide-up' : ''}${expandedIndex === cardIdx ? ' expanded' : ''}`}
-              style={{
-                cursor: 'pointer',
-                padding: '20px 32px',
-                background: expandedIndex === cardIdx ? '#f6f8fa' : '#fff',
-                borderRadius: expandedIndex === cardIdx ? '8px 8px 0 0' : 0,
-                boxShadow:
-                  expandedIndex === cardIdx
-                    ? '0 4px 24px rgba(20,24,75,0.10)'
-                    : '0 1px 2px rgba(20,24,75,0.04)',
-                border:
-                  expandedIndex === cardIdx
-                    ? '1px solid #e0e0e0'
-                    : '1px solid #f0f0f0',
-                borderBottom:
-                  expandedIndex === cardIdx ? 'none' : '1px solid #f0f0f0',
-                transition:
-                  'background 0.25s, box-shadow 0.25s, border-radius 0.25s, border 0.25s',
-                display: 'flex',
-                alignItems: 'center',
-                minHeight: 70,
-                position: 'relative',
-                zIndex: expandedIndex === cardIdx ? 2 : 1,
-              }}
-              onClick={() =>
-                setExpandedIndex(expandedIndex === cardIdx ? null : cardIdx)
-              }
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = '#f0f4fa')
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background =
-                  expandedIndex === cardIdx ? '#f6f8fa' : '#fff')
-              }
-            >
-              {/* Unified Header Section - Reddit style */}
-              <div
+      {reports.map((report, reportIdx) => (
+        <Card
+          key={report.id}
+          title={
+            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span>{report.title}</span>
+              <span
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  width: '100%',
-                  gap: 24,
-                  flexWrap: 'wrap',
-                  padding: 0,
+                  fontSize: 12,
+                  fontWeight: 100,
+                  fontStyle: 'italic',
+                  color:
+                    report.status === 'Closed'
+                      ? 'red'
+                      : report.status === 'In Progress'
+                        ? 'orange'
+                        : 'green',
                 }}
               >
-                {/* Progress (like Reddit upvote) */}
-                <div
+                {report.status}
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <span
+                  className={
+                    report.status === 'Open' || report.status === 'In Progress'
+                      ? 'indicator-flash'
+                      : ''
+                  }
+                  style={{
+                    display: 'inline-block',
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    backgroundColor:
+                      report.status === 'Closed'
+                        ? 'red'
+                        : report.status === 'In Progress'
+                          ? 'orange'
+                          : 'green',
+                  }}
+                ></span>
+              </span>
+            </span>
+          }
+          style={{
+            borderRadius: 16,
+            boxShadow: '0 2px 16px rgba(20,24,75,0.10)',
+            marginBottom: 8,
+          }}
+          extra={
+            <Tooltip
+              title="Add to favorites"
+              color="#ffe957ff"
+              overlayInnerStyle={{
+                color: '#222',
+                fontWeight: 500,
+                fontSize: 11,
+                border: '1px solid #ffe957ff',
+                boxShadow: '0 2px 8px rgba(250,219,20,0.10)',
+                padding: '6px 14px',
+                minWidth: 120,
+                textAlign: 'center',
+              }}
+            >
+              <Button
+                icon={<StarFilled style={{ color: '#fadb14' }} />}
+                type="text"
+                onClick={() => {
+                  onAddFavorite(
+                    'report',
+                    report.id,
+                    report.title,
+                    `/reporting/${report.id}`,
+                  );
+                  message.success('Added to favorites!');
+                }}
+              />
+            </Tooltip>
+          }
+        >
+          {/* Owner and team info */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              marginBottom: 8,
+            }}
+          >
+            {report.owner && (
+              <Tooltip
+                title={`Go to ${report.owner.name}'s profile`}
+                color="#ffae18ff"
+                overlayInnerStyle={{
+                  color: '#222',
+                  fontWeight: 500,
+                  fontSize: 11,
+                  border: '1px solid #ffae18ff',
+                  boxShadow: '0 2px 8px rgba(24,144,255,0.10)',
+                  padding: '6px 14px',
+                  minWidth: 120,
+                  textAlign: 'center',
+                }}
+              >
+                <span
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    marginRight: 16,
+                    cursor: 'pointer',
+                  }}
+                  onClick={() =>
+                    navigate(
+                      `/collaboration?user=${encodeURIComponent(report.owner.name)}`,
+                    )
+                  }
+                  title={`View ${report.owner.name} in Collaboration`}
+                >
+                  <Avatar src={report.owner.avatar} />
+                  <span
+                    style={{ marginLeft: 6, color: '#1890ff', fontWeight: 500 }}
+                  >
+                    {report.owner.name}
+                  </span>
+                </span>
+              </Tooltip>
+            )}
+            {report.team && (
+              <Tooltip
+                title={`Go to ${report.team.name} team`}
+                color="#ffae18ff"
+                overlayInnerStyle={{
+                  color: '#222',
+                  fontWeight: 500,
+                  fontSize: 11,
+                  border: '1px solid #ffae18ff',
+                  boxShadow: '0 2px 8px rgba(24,144,255,0.10)',
+                  padding: '6px 14px',
+                  minWidth: 120,
+                  textAlign: 'center',
+                }}
+              >
+                <Tag
+                  color={report.team.color}
+                  style={{
+                    fontWeight: 600,
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                  onClick={() =>
+                    navigate(
+                      `/collaboration?team=${encodeURIComponent(report.team.name)}`,
+                    )
+                  }
+                >
+                  {report.team.icon && (
+                    <span style={{ marginRight: 4 }}>{report.team.icon}</span>
+                  )}
+                  {report.team.name}
+                </Tag>
+              </Tooltip>
+            )}
+            <Button
+              type="link"
+              onClick={() => {
+                setExpanded((prev) => {
+                  const isExpanding = !prev.includes(report.id);
+                  if (isExpanding) {
+                    setSeen((old) => ({
+                      ...old,
+                      [report.id]: { updates: 0, feedback: 0 },
+                    }));
+                  }
+                  return isExpanding
+                    ? [...prev, report.id]
+                    : prev.filter((id) => id !== report.id);
+                });
+              }}
+              style={{ marginLeft: 'auto' }}
+              icon={
+                expanded.includes(report.id) ? <UpOutlined /> : <DownOutlined />
+              }
+            />
+          </div>
+
+          {/* Collapsible panels for updates and feedback */}
+          <Collapse
+            activeKey={expanded.includes(report.id) ? ['1', '2'] : []}
+            ghost
+          >
+            {/* Updates Panel */}
+            <Collapse.Panel
+              header={
+                <span>
+                  Updates{' '}
+                  {typeof seen[report.id]?.updates === 'number' &&
+                    seen[report.id]?.updates > 0 && (
+                      <Badge
+                        count={seen[report.id].updates}
+                        size="small"
+                        style={{ backgroundColor: '#333dffff', marginLeft: 4 }}
+                        showZero={false}
+                      />
+                    )}
+                </span>
+              }
+              key="1"
+              showArrow={false}
+            >
+              {(report.updates || []).length === 0 && (
+                <div style={{ color: '#888' }}>No updates yet.</div>
+              )}
+              {(report.updates || []).map((update, updateIdx) => (
+                <div
+                  key={updateIdx}
+                  style={{
+                    marginBottom: 8,
+                    display: 'flex',
+                    alignItems: 'center',
                   }}
                 >
+                  <span style={{ fontWeight: 500, marginRight: 8 }}>
+                    {update.date}:
+                  </span>
+                  {editingReport &&
+                  editingReport.reportIdx === reportIdx &&
+                  editingReport.updateIdx === updateIdx ? (
+                    <>
+                      <Input
+                        value={editDraft}
+                        onChange={(e) => setEditDraft(e.target.value)}
+                        size="small"
+                        style={{ width: 250, marginRight: 8 }}
+                        autoFocus
+                      />
+                      <Button
+                        icon={<SaveOutlined />}
+                        type="primary"
+                        size="small"
+                        onClick={handleSaveSummary}
+                        style={{ marginRight: 4 }}
+                      />
+                      <Button
+                        icon={<DeleteOutlined />}
+                        type="text"
+                        size="small"
+                        danger
+                        onClick={() => handleDeleteUpdate(reportIdx, updateIdx)}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <span style={{ flex: 1 }}>{update.summary}</span>
+                      {isAdmin && (
+                        <>
+                          <Button
+                            icon={<EditOutlined />}
+                            type="link"
+                            size="small"
+                            onClick={() =>
+                              handleEditSummary(reportIdx, updateIdx)
+                            }
+                          />
+                          <Button
+                            icon={<DeleteOutlined />}
+                            type="link"
+                            size="small"
+                            danger
+                            onClick={() =>
+                              handleDeleteUpdate(reportIdx, updateIdx)
+                            }
+                          />
+                        </>
+                      )}
+                    </>
+                  )}
+                </div>
+              ))}
+              {isAdmin && (
+                <Button
+                  icon={<PlusOutlined />}
+                  type="dashed"
+                  size="small"
+                  onClick={() => handleAddUpdate(reportIdx)}
+                  style={{ marginTop: 8 }}
+                >
+                  Draft Update
+                </Button>
+              )}
+            </Collapse.Panel>
+
+            {/* Feedback Panel */}
+            <Collapse.Panel
+              header={
+                <span>
+                  Feedback{' '}
+                  {typeof seen[report.id]?.feedback === 'number' &&
+                    seen[report.id]?.feedback > 0 && (
+                      <Badge
+                        count={seen[report.id].feedback}
+                        size="small"
+                        style={{ backgroundColor: '#fa1414ff', marginLeft: 8 }}
+                        showZero={false}
+                      />
+                    )}
+                </span>
+              }
+              key="2"
+              showArrow={false}
+            >
+              {(report.feedback || []).length === 0 && (
+                <div style={{ color: '#888' }}>No feedback yet.</div>
+              )}
+              {(report.feedback || []).map((fb, fbIdx) => (
+                <div key={fbIdx} style={{ marginBottom: 8 }}>
                   <Tooltip
-                    title={`${obj.objectiveSuccess}% done / ${obj.objectivePercent - obj.objectiveSuccess}% in progress`}
+                    title={`Go to ${fb.user.name}'s profile`}
+                    color="#ffe957ff"
                     overlayInnerStyle={{
-                      background: getProgressGradient(
-                        obj.objectiveSuccess,
-                        obj.objectivePercent,
-                      ),
                       color: '#222',
                       fontWeight: 500,
-                      fontSize: 13,
-                      border: '1px solid #bae7ff',
-                      boxShadow: '0 2px 8px rgba(24,144,255,0.10)',
+                      fontSize: 11,
+                      border: '1px solid #ffe957ff',
+                      boxShadow: '0 2px 8px rgba(250,219,20,0.10)',
                       padding: '6px 14px',
                       minWidth: 120,
                       textAlign: 'center',
                     }}
                   >
-                    <Progress
-                      percent={obj.objectivePercent}
-                      success={{ percent: obj.objectiveSuccess }}
-                      type="circle"
-                      width={40}
-                      style={{ marginRight: 8 }}
-                    />
-                  </Tooltip>
-                </div>
-                {/* Title and Team */}
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    flex: 1,
-                    minWidth: 180,
-                  }}
-                >
-                  <div
-                    style={{ fontSize: 12, color: '#888', fontWeight: 'bold' }}
-                  >
-                    Title
-                  </div>
-                  <div
-                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-                  >
-                    {renderTitle(obj, cardIdx)}
                     <span
                       style={{
-                        fontWeight: 600,
-                        borderRadius: 8,
-                        color: '#1890ff',
-                        background: '#e6f7ff',
-                        padding: '2px 8px',
-                        marginLeft: 8,
-                        fontSize: 12,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        cursor: 'pointer',
                       }}
+                      onClick={() =>
+                        navigate(
+                          `/collaboration?user=${encodeURIComponent(fb.user.name)}`,
+                        )
+                      }
+                      title={`View ${fb.user.name} in Collaboration`}
                     >
-                      {obj.team.icon}
-                      {obj.team.name}
+                      <Avatar
+                        src={fb.user.avatar}
+                        size={20}
+                        style={{ marginRight: 4 }}
+                      />
+                      <b style={{ color: '#1890ff' }}>{fb.user.name}</b>
                     </span>
-                  </div>
+                  </Tooltip>
+                  <span style={{ color: '#888', fontSize: 12, marginLeft: 4 }}>
+                    ({fb.date})
+                  </span>
+                  : {fb.comment}
                 </div>
-                {/* Owner */}
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    minWidth: 120,
-                  }}
-                >
-                  <Avatar
-                    src={obj.owner.avatar}
-                    size={24}
-                    style={{ boxShadow: '0 2px 8px rgba(20,24,75,0.10)' }}
+              ))}
+              {/* Feedback input for all users */}
+              {activeFeedbackReport === reportIdx ? (
+                <div style={{ marginTop: 8 }}>
+                  <Input.TextArea
+                    value={feedbackDraft}
+                    onChange={(e) => setFeedbackDraft(e.target.value)}
+                    rows={2}
+                    placeholder="Enter your feedback..."
                   />
-                  <span style={{ fontWeight: 500 }}>{obj.owner.name}</span>
+                  <Button
+                    type="primary"
+                    size="small"
+                    onClick={() => handleAddFeedback(reportIdx)}
+                    style={{ marginTop: 4 }}
+                  >
+                    Submit Feedback
+                  </Button>
+                  <Button
+                    type="text"
+                    size="small"
+                    onClick={() => setActiveFeedbackReport(null)}
+                    style={{ marginLeft: 8 }}
+                  >
+                    Cancel
+                  </Button>
                 </div>
-                {/* Date Created */}
-                <div
-                  style={{
-                    fontSize: 12,
-                    color: '#888',
-                    fontWeight: 'bold',
-                    minWidth: 100,
-                  }}
+              ) : (
+                <Button
+                  type="dashed"
+                  size="small"
+                  onClick={() => setActiveFeedbackReport(reportIdx)}
+                  style={{ marginTop: 8 }}
                 >
-                  {obj.dateCreated}
-                </div>
-              </div>
-              {/* Expand Icon */}
-              <div
-                style={{
-                  marginLeft: 12,
-                  height: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-              >
-                {expandedIndex === cardIdx ? <UpOutlined /> : <DownOutlined />}
-              </div>
-            </div>
-            {/* Expandable Section */}
-            <div
-              className={`reporting-thread-expandable${expandedIndex === cardIdx ? ' expanded' : ''}`}
-              style={{
-                maxHeight: expandedIndex === cardIdx ? 1000 : 0,
-                opacity: expandedIndex === cardIdx ? 1 : 0,
-                transform:
-                  expandedIndex === cardIdx
-                    ? 'translateY(0)'
-                    : 'translateY(-8px)',
-                overflow: 'hidden',
-                background: '#fff',
-                boxShadow:
-                  expandedIndex === cardIdx
-                    ? '0 8px 32px rgba(20,24,75,0.08)'
-                    : 'none',
-                padding:
-                  expandedIndex === cardIdx ? '24px 32px 8px 32px' : '0 32px',
-                borderBottomLeftRadius: 8,
-                borderBottomRightRadius: 8,
-                borderTop:
-                  expandedIndex === cardIdx ? '1px solid #e0e0e0' : 'none',
-                marginBottom: expandedIndex === cardIdx ? 0 : -8,
-                transition:
-                  'max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s, transform 0.25s, box-shadow 0.25s, padding 0.25s, margin-bottom 0.25s',
-                zIndex: 1,
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {expandedIndex === cardIdx && (
-                <div>
-                  {/* Summary */}
-                  <div style={{ margin: '12px 0' }}>
-                    <b>Summary:</b>
-                    <span style={{ marginLeft: 8 }}>
-                      {obj.summary || <i>No summary drafted</i>}
-                    </span>
-                    <Button
-                      type="link"
-                      size="small"
-                      onClick={() => {
-                        setSummaryIdx(cardIdx);
-                        setSummaryDraft(obj.summary);
-                      }}
-                    >
-                      Draft/Edit
-                    </Button>
-                    <Modal
-                      title="Draft/Edit Summary"
-                      open={summaryIdx === cardIdx}
-                      onOk={() => handleSaveSummary(cardIdx)}
-                      onCancel={() => {
-                        setSummaryIdx(null);
-                        setSummaryDraft('');
-                      }}
-                      okText="Save"
-                      cancelText="Cancel"
-                      className={removingIdx === cardIdx ? 'modal-shrink' : ''}
-                      maskClosable={false}
-                    >
-                      <Input.TextArea
-                        value={summaryDraft}
-                        onChange={(e) => setSummaryDraft(e.target.value)}
-                        rows={4}
-                        autoFocus
-                        placeholder="Write your summary here..."
-                      />
-                    </Modal>
-                  </div>
-                  {/* Feedback Section for Summary */}
-                  <div style={{ margin: '12px 0 0 0' }}>
-                    <b>Feedback:</b>
-                    <Button
-                      type="link"
-                      size="small"
-                      onClick={() => {
-                        setFeedbackModalIdx(cardIdx);
-                        setFeedbackDraft('');
-                      }}
-                      style={{ marginLeft: 8 }}
-                    >
-                      Add Feedback
-                    </Button>
-                    <Modal
-                      title="Add Feedback"
-                      open={feedbackModalIdx === cardIdx}
-                      onOk={() => handleSaveFeedback(cardIdx)}
-                      onCancel={() => {
-                        setFeedbackModalIdx(null);
-                        setFeedbackDraft('');
-                      }}
-                      okText="Submit"
-                      cancelText="Cancel"
-                      maskClosable={false}
-                    >
-                      <Input.TextArea
-                        value={feedbackDraft}
-                        onChange={(e) => setFeedbackDraft(e.target.value)}
-                        rows={3}
-                        autoFocus
-                        placeholder="Write your feedback for this summary..."
-                      />
-                    </Modal>
-                    <div style={{ marginTop: 8 }}>
-                      {obj.summaryFeedback && obj.summaryFeedback.length > 0 ? (
-                        <ul style={{ paddingLeft: 20 }}>
-                          {obj.summaryFeedback.map((fb, i) => (
-                            <li key={i} style={{ marginBottom: 4 }}>
-                              {fb}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <i>No feedback yet</i>
-                      )}
-                    </div>
-                  </div>
-                  )
-                </div>
+                  Add Feedback
+                </Button>
               )}
-            </div>
-          </Splitter.Panel>
-        ))}
-      </Splitter>
+            </Collapse.Panel>
+          </Collapse>
+        </Card>
+      ))}
     </div>
   );
 }
