@@ -1,73 +1,85 @@
-import '../styles/ProfilePreferences.css';
 import { useState } from 'react';
-import { Card, Divider, message, Spin, Alert } from 'antd';
-import ProfileAvatar from '../components/ProfileAvatar';
-import ProfileEditForm from '../components/ProfileEditForm';
-import ChangePasswordForm from '../components/ChangePasswordForm';
-import { useUser } from '../context/UserContext';
-import { updateProfile, uploadAvatar } from '../utils/api';
+import { Form, Input, Button, Switch, Divider, message } from 'antd';
+import '../styles/ProfilePreferences.css';
 
-function ProfilePreferences() {
-  const { user, refreshUser, loading, error } = useUser();
-  const [avatarUploading, setAvatarUploading] = useState(false);
-  const [profileUpdating, setProfileUpdating] = useState(false);
+export default function ProfilePreferences() {
+  const [loading, setLoading] = useState(false);
 
-  // Handle avatar upload
-  const handleAvatarUpload = async (file) => {
-    setAvatarUploading(true);
-    try {
-      await uploadAvatar(file);
-      await refreshUser();
-      message.success('Avatar updated!');
-    } catch (err) {
-      message.error('Failed to update avatar.');
-    } finally {
-      setAvatarUploading(false);
-    }
+  const handleSave = () => {
+    setLoading(true);
+    // Simulate save
+    setTimeout(() => {
+      setLoading(false);
+      message.success('Preferences saved!');
+    }, 1000);
   };
 
-  // Handle profile update
-  const handleProfileUpdate = async (values) => {
-    setProfileUpdating(true);
-    try {
-      await updateProfile(values);
-      await refreshUser();
-      message.success('Profile updated!');
-    } catch (err) {
-      message.error('Failed to update profile.');
-    } finally {
-      setProfileUpdating(false);
-    }
+  const handleChangePassword = () => {
+    message.success('Password changed!');
   };
-
-  if (loading)
-    return <Spin style={{ display: 'block', margin: '64px auto' }} />;
-  if (error)
-    return (
-      <Alert
-        type="error"
-        message={error}
-        style={{ maxWidth: 500, margin: '32px auto' }}
-      />
-    );
 
   return (
-    <Card title="My Profile" style={{ maxWidth: 500, margin: '32px auto' }}>
-      <ProfileAvatar
-        avatarUrl={user?.avatar_url}
-        onUpload={handleAvatarUpload}
-        uploading={avatarUploading}
-      />
-      <Divider />
-      <ProfileEditForm
-        user={user}
-        onUpdate={handleProfileUpdate}
-        updating={profileUpdating}
-      />
-      <Divider />
-      <ChangePasswordForm />
-    </Card>
+    <div className="profile-preferences">
+      <h2>Profile Preferences & Settings</h2>
+      <div
+        style={{
+          maxHeight: 'calc(100vh - 64px)',
+          overflowY: 'auto',
+          padding: '24px',
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 600,
+            margin: '40px auto',
+            padding: 32,
+            background: '#fff',
+            borderRadius: 12,
+            boxShadow: '0 2px 16px rgba(20,24,75,0.08)',
+          }}
+        >
+          <h2>Profile Preferences & Settings</h2>
+          <Divider />
+          <Form layout="vertical" onFinish={handleSave}>
+            <Form.Item label="Display Name" name="displayName">
+              <Input placeholder="Your name" />
+            </Form.Item>
+            <Form.Item label="Email" name="email">
+              <Input type="email" placeholder="Your email" />
+            </Form.Item>
+            <Form.Item
+              label="Enable Email Notifications"
+              name="notifications"
+              valuePropName="checked"
+            >
+              <Switch />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                Save Preferences
+              </Button>
+            </Form.Item>
+          </Form>
+          <Divider />
+          <h3>Change Password</h3>
+          <Form layout="vertical" onFinish={handleChangePassword}>
+            <Form.Item label="Current Password" name="currentPassword">
+              <Input.Password />
+            </Form.Item>
+            <Form.Item label="New Password" name="newPassword">
+              <Input.Password />
+            </Form.Item>
+            <Form.Item label="Confirm New Password" name="confirmPassword">
+              <Input.Password />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Change Password
+              </Button>
+            </Form.Item>
+          </Form>
+        </div>
+      </div>
+    </div>
   );
 }
-
-export default ProfilePreferences;

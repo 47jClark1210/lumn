@@ -353,7 +353,7 @@ function App() {
               />
               {/* Favorites Dropdown */}
               {favoritesExpanded && (
-                <div style={{ background: '#112244', paddingLeft: 32 }}>
+                <div style={{ background: '#001529', paddingLeft: 32 }}>
                   <FavoritesDropdown
                     favorites={favorites}
                     onLinkClick={() => setFavoritesExpanded(false)}
