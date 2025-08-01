@@ -1,7 +1,4 @@
 import { useState, useEffect } from 'react';
-// Ensure URLSearchParams is available in all environments
-import 'url-search-params-polyfill'; // Ensures URLSearchParams is polyfilled
-import URLSearchParams from 'url-search-params-polyfill'; // Explicitly import for environments without native support
 import { mockData, getRandomFeaturedUser } from '../utils/mockData';
 import '../styles/Collaboration.css';
 import {
@@ -725,6 +722,7 @@ function Collaboration() {
   );
 
   useEffect(() => {
+    // eslint-disable-next-line no-undef
     const params = new URLSearchParams(location.search);
     const userName = params.get('user');
     const teamName = params.get('team');
