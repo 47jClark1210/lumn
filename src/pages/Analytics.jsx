@@ -92,7 +92,13 @@ function Analytics({ onAddFavorite }) {
     };
 
   return (
-    <div>
+    <div
+      style={{
+        maxHeight: 'calc(100vh - 64px)',
+        overflowY: 'auto',
+        padding: 24,
+      }}
+    >
       <h2 style={{ fontWeight: 700, fontSize: 22, marginBottom: 24 }}>
         Objectives & Key Results
       </h2>
