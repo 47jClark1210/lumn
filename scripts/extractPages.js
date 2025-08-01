@@ -1,6 +1,10 @@
 // scripts/extractPages.js
 const fs = require('fs');
 const path = require('path');
+const { fileURLToPath } = require('url');
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const appPath = path.join(__dirname, '../src/App.jsx');
 const pagesDir = path.join(__dirname, '../src/pages');
@@ -18,12 +22,12 @@ const pageNames = [
   'Collaboration',
   'Reporting',
   'Favorites',
-  'ProfileMenu'
+  'ProfileMenu',
 ];
 
 let newAppCode = appCode;
 
-pageNames.forEach(name => {
+pageNames.forEach((name) => {
   // Regex to match the function component (simple version)
   const regex = new RegExp(`function ${name}\\([^)]*\\)\\s*{[\\s\\S]*?^}`, 'm');
   const match = appCode.match(regex);
@@ -32,7 +36,10 @@ pageNames.forEach(name => {
     const filePath = path.join(pagesDir, `${name}.jsx`);
     fs.writeFileSync(filePath, componentCode, 'utf8');
     // Replace in App.jsx with import
-    newAppCode = newAppCode.replace(match[0], `import ${name} from './pages/${name}';`);
+    newAppCode = newAppCode.replace(
+      match[0],
+      `import ${name} from './pages/${name}';`,
+    );
   }
 });
 
